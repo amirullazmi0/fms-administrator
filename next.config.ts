@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
   },
   cacheComponents: true,
+  // The administrator app starts at Laporan.
+  async redirects() {
+    return [{ source: "/", destination: "/reports", permanent: false }];
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {
