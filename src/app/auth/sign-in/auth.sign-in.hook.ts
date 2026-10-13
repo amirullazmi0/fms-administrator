@@ -25,7 +25,8 @@ export function useSignIn() {
         errors,
         handleSubmit: handleSubmit(onSubmit),
         // A login that succeeded but is not allowed here does not redirect.
-        isSubmitting: login.isPending || Boolean(login.isSuccess && login.data?.data?.user.admin_app),
+        isSubmitting:
+            login.isPending || Boolean(login.isSuccess && login.data?.data?.user.admin_app),
         error: login.isError
             ? apiErrorMessage(login.error, 'Login gagal')
             : login.isSuccess && login.data?.data && !login.data.data.user.admin_app

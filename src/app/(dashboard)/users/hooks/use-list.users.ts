@@ -20,7 +20,10 @@ export function useUserList() {
         queries: { page: params.page, limit: PAGE_SIZE, search, sort: 'created_at', order: 'desc' },
         options: { placeholderData: (prev) => prev },
     });
-    const roles = useQueryApiRequest<GlobalApiResponse<Role[]>>({ key: 'roles', config: { errorNotification: false } });
+    const roles = useQueryApiRequest<GlobalApiResponse<Role[]>>({
+        key: 'roles',
+        config: { errorNotification: false },
+    });
 
     return {
         users: users.data?.data ?? [],

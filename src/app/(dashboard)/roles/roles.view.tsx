@@ -12,7 +12,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/dialog';
-import { Empty, Note, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc';
+import {
+    Empty,
+    Note,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/misc';
 import type { GlobalApiResponse } from '@/types/api/responses';
 import type { Permission, Role } from '@/types/role';
 import ModalUpsertRole from './components/modal-upsert.roles';
@@ -22,13 +31,19 @@ export default function RolesView() {
     const can = useCan();
     const toast = useToast();
     const roles = useQueryApiRequest<GlobalApiResponse<Role[]>>({ key: 'roles' });
-    const permissions = useQueryApiRequest<GlobalApiResponse<Permission[]>>({ key: 'permissions', options: { staleTime: Infinity } });
+    const permissions = useQueryApiRequest<GlobalApiResponse<Permission[]>>({
+        key: 'permissions',
+        options: { staleTime: Infinity },
+    });
     const list = roles.data?.data ?? [];
     const catalogue = permissions.data?.data ?? [];
     const [editing, setEditing] = useState<Role | null>(null);
     const [open, setOpen] = useState(false);
     const [toDelete, setToDelete] = useState<Role | null>(null);
-    const del = useMutationApiRequest<GlobalApiResponse<{ id: string }>, { __params: { id: string } }>({ key: 'roles-delete', config: SILENT });
+    const del = useMutationApiRequest<
+        GlobalApiResponse<{ id: string }>,
+        { __params: { id: string } }
+    >({ key: 'roles-delete', config: SILENT });
 
     useEffect(() => {
         setStats(
@@ -52,9 +67,17 @@ export default function RolesView() {
     return (
         <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
-                <Note tone="info" className="flex-1">Role nentuin apa yang boleh dilakuin user. User yang ditandai <b>Administrator</b> (di menu User) lolos semua cek tanpa lihat role.</Note>
+                <Note tone="info" className="flex-1">
+                    Role nentuin apa yang boleh dilakuin user. User yang ditandai{' '}
+                    <b>Administrator</b> (di menu User) lolos semua cek tanpa lihat role.
+                </Note>
                 {can(P.roleCreate) && (
-                    <Button onClick={() => { setEditing(null); setOpen(true); }}>
+                    <Button
+                        onClick={() => {
+                            setEditing(null);
+                            setOpen(true);
+                        }}
+                    >
                         <Plus /> Role
                     </Button>
                 )}
@@ -80,23 +103,45 @@ export default function RolesView() {
                                         {r.is_default && <Badge variant="info">Default</Badge>}
                                     </span>
                                 </TableCell>
-                                <TableCell>{r.is_administrator ? <Badge variant="brand">fms-administrator</Badge> : <Badge variant="muted">fms-supervisor</Badge>}</TableCell>
+                                <TableCell>
+                                    {r.is_administrator ? (
+                                        <Badge variant="brand">fms-administrator</Badge>
+                                    ) : (
+                                        <Badge variant="muted">fms-supervisor</Badge>
+                                    )}
+                                </TableCell>
                                 <TableCell className="max-w-[360px] whitespace-normal">
                                     <span className="text-xs text-muted-foreground">
                                         {r.permissions.length} / {catalogue.length}
-                                        {r.permissions.length > 0 && ` · ${r.permissions.slice(0, 4).join(', ')}${r.permissions.length > 4 ? '…' : ''}`}
+                                        {r.permissions.length > 0 &&
+                                            ` · ${r.permissions.slice(0, 4).join(', ')}${r.permissions.length > 4 ? '…' : ''}`}
                                     </span>
                                 </TableCell>
                                 <TableCell className="tabular-nums">{r.user_count ?? 0}</TableCell>
                                 <TableCell className="text-right">
                                     <span className="inline-flex gap-1">
                                         {can(P.roleUpdate) && (
-                                            <Button variant="ghost" size="icon-sm" onClick={() => { setEditing(r); setOpen(true); }} aria-label={`Ubah ${r.name}`}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                onClick={() => {
+                                                    setEditing(r);
+                                                    setOpen(true);
+                                                }}
+                                                aria-label={`Ubah ${r.name}`}
+                                            >
                                                 <Pencil />
                                             </Button>
                                         )}
                                         {can(P.roleDelete) && (
-                                            <Button variant="ghost" size="icon-sm" className="text-destructive hover:text-destructive" disabled={r.in_use || r.is_default} onClick={() => setToDelete(r)} aria-label={`Hapus ${r.name}`}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                className="text-destructive hover:text-destructive"
+                                                disabled={r.in_use || r.is_default}
+                                                onClick={() => setToDelete(r)}
+                                                aria-label={`Hapus ${r.name}`}
+                                            >
                                                 <Trash2 />
                                             </Button>
                                         )}
@@ -109,7 +154,12 @@ export default function RolesView() {
                 {roles.isLoading && <Empty className="p-4">Memuat…</Empty>}
             </Card>
 
-            <ModalUpsertRole open={open} role={editing} permissions={catalogue} onOpenChange={setOpen} />
+            <ModalUpsertRole
+                open={open}
+                role={editing}
+                permissions={catalogue}
+                onOpenChange={setOpen}
+            />
             <ConfirmDialog
                 open={toDelete != null}
                 onOpenChange={(o) => !o && setToDelete(null)}

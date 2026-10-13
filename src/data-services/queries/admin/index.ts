@@ -1,6 +1,15 @@
 import { QueriesDataService } from '@/data-services/type';
 
-export type AdminQueryKeys = 'users' | 'roles' | 'roles-by-id' | 'permissions' | 'features' | 'simulation' | 'road-paths' | 'road-paths-by-id' | 'road-areas';
+export type AdminQueryKeys =
+    | 'users'
+    | 'roles'
+    | 'roles-by-id'
+    | 'permissions'
+    | 'features'
+    | 'simulation'
+    | 'road-paths'
+    | 'road-paths-by-id'
+    | 'road-areas';
 
 export const adminQueries: QueriesDataService<AdminQueryKeys> = {
     users: '/users',

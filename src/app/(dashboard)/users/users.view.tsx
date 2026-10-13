@@ -15,7 +15,16 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { SearchInput } from '@/components/ui/input';
 import { ConfirmDialog } from '@/components/ui/dialog';
-import { Avatar, Empty, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc';
+import {
+    Avatar,
+    Empty,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/misc';
 import type { GlobalApiResponse } from '@/types/api/responses';
 import type { User } from '@/types/auth';
 import ModalUpsertUser from './components/modal-upsert.users';
@@ -30,7 +39,10 @@ export default function UsersView() {
     const [editing, setEditing] = useState<User | null>(null);
     const [open, setOpen] = useState(false);
     const [toDelete, setToDelete] = useState<User | null>(null);
-    const del = useMutationApiRequest<GlobalApiResponse<{ id: string }>, { __params: { id: string } }>({ key: 'users-delete', config: SILENT });
+    const del = useMutationApiRequest<
+        GlobalApiResponse<{ id: string }>,
+        { __params: { id: string } }
+    >({ key: 'users-delete', config: SILENT });
 
     useEffect(() => {
         setStats(<HeaderStat label="User" value={meta?.total_data ?? '—'} />);
@@ -49,9 +61,20 @@ export default function UsersView() {
     return (
         <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:p-6">
             <div className="flex flex-wrap items-center gap-2">
-                <SearchInput className="min-w-60 flex-1" placeholder="Cari nama, email, atau role…" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Cari user" />
+                <SearchInput
+                    className="min-w-60 flex-1"
+                    placeholder="Cari nama, email, atau role…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    aria-label="Cari user"
+                />
                 {can(P.userCreate) && (
-                    <Button onClick={() => { setEditing(null); setOpen(true); }}>
+                    <Button
+                        onClick={() => {
+                            setEditing(null);
+                            setOpen(true);
+                        }}
+                    >
                         <Plus /> User
                     </Button>
                 )}
@@ -76,7 +99,9 @@ export default function UsersView() {
                                         <Avatar name={u.name || u.email} />
                                         <span className="flex min-w-0 flex-col">
                                             <b className="truncate">{u.name || '—'}</b>
-                                            <span className="truncate text-xs text-muted-foreground">{u.email}</span>
+                                            <span className="truncate text-xs text-muted-foreground">
+                                                {u.email}
+                                            </span>
                                         </span>
                                     </span>
                                 </TableCell>
@@ -90,17 +115,39 @@ export default function UsersView() {
                                         <Badge variant="outline">{u.role}</Badge>
                                     </span>
                                 </TableCell>
-                                <TableCell>{u.is_active ? <Badge variant="success">Aktif</Badge> : <Badge variant="muted">Nonaktif</Badge>}</TableCell>
-                                <TableCell className="text-muted-foreground">{ago(u.last_login_at)}</TableCell>
+                                <TableCell>
+                                    {u.is_active ? (
+                                        <Badge variant="success">Aktif</Badge>
+                                    ) : (
+                                        <Badge variant="muted">Nonaktif</Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-muted-foreground">
+                                    {ago(u.last_login_at)}
+                                </TableCell>
                                 <TableCell className="text-right">
                                     <span className="inline-flex gap-1">
                                         {(can(P.userUpdate) || can(P.userUpdateRole)) && (
-                                            <Button variant="ghost" size="icon-sm" onClick={() => { setEditing(u); setOpen(true); }} aria-label={`Ubah ${u.email}`}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                onClick={() => {
+                                                    setEditing(u);
+                                                    setOpen(true);
+                                                }}
+                                                aria-label={`Ubah ${u.email}`}
+                                            >
                                                 <Pencil />
                                             </Button>
                                         )}
                                         {can(P.userDelete) && u.id !== me?.id && (
-                                            <Button variant="ghost" size="icon-sm" className="text-destructive hover:text-destructive" onClick={() => setToDelete(u)} aria-label={`Hapus ${u.email}`}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                className="text-destructive hover:text-destructive"
+                                                onClick={() => setToDelete(u)}
+                                                aria-label={`Hapus ${u.email}`}
+                                            >
                                                 <Trash2 />
                                             </Button>
                                         )}
@@ -110,7 +157,11 @@ export default function UsersView() {
                         ))}
                     </TableBody>
                 </Table>
-                {!loading && users.length === 0 && <Empty className="p-4">{search ? 'Nggak ada user yang cocok.' : 'Belum ada user.'}</Empty>}
+                {!loading && users.length === 0 && (
+                    <Empty className="p-4">
+                        {search ? 'Nggak ada user yang cocok.' : 'Belum ada user.'}
+                    </Empty>
+                )}
                 {loading && <Empty className="p-4">Memuat…</Empty>}
             </Card>
             <Pager meta={meta} onPage={setPage} />

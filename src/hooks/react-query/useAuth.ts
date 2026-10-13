@@ -30,9 +30,16 @@ export const useAuth = () => {
                 if (!data?.user) return;
                 toast.success('Login berhasil');
                 setUser(data.user);
-                queryClient.setQueryData(['profile', undefined, undefined], { success: true, message: '', data: data.user });
-                const redirect = new URLSearchParams(globalThis.window.location.search).get('redirect');
-                globalThis.window.location.href = redirect && redirect.startsWith('/') ? redirect : '/';
+                queryClient.setQueryData(['profile', undefined, undefined], {
+                    success: true,
+                    message: '',
+                    data: data.user,
+                });
+                const redirect = new URLSearchParams(globalThis.window.location.search).get(
+                    'redirect',
+                );
+                globalThis.window.location.href =
+                    redirect && redirect.startsWith('/') ? redirect : '/';
             },
         },
     });

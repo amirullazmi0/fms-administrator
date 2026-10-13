@@ -1,6 +1,7 @@
 import { QueriesDataService } from '@/data-services/type';
 
-export type DevicesQueryKeys = 'devices' | 'devices-by-imei' | 'devices-day' | 'devices-ritase' | 'devices-records';
+export type DevicesQueryKeys =
+    'devices' | 'devices-by-imei' | 'devices-day' | 'devices-ritase' | 'devices-records';
 
 export const devicesQueries: QueriesDataService<DevicesQueryKeys> = {
     devices: '/devices',

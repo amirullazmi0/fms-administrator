@@ -13,51 +13,84 @@ import { Tip } from '@/components/ui/misc';
 import type { GlobalApiResponse } from '@/types/api/responses';
 import type { SimulationStatus } from '@/types/feature';
 
-export default function SimulationButton({ mini, className }: { mini: boolean; className: string }) {
-  const can = useCan();
-  const toast = useToast();
-  const allowed = can(P.simulationRun);
-  const sim = useQueryApiRequest<GlobalApiResponse<SimulationStatus>>({ key: 'simulation', config: { errorNotification: false }, options: { enabled: allowed, refetchInterval: 30000 } });
-  const start = useMutationApiRequest<GlobalApiResponse<SimulationStatus>, object>({ key: 'simulation-start', config: SILENT });
-  const stop = useMutationApiRequest<GlobalApiResponse<SimulationStatus>, object>({ key: 'simulation-stop', config: SILENT });
-  const [busy, setBusy] = useState(false);
-  const s = sim.data?.data;
-  if (!allowed || !s?.enabled) return null;
+export default function SimulationButton({
+    mini,
+    className,
+}: {
+    mini: boolean;
+    className: string;
+}) {
+    const can = useCan();
+    const toast = useToast();
+    const allowed = can(P.simulationRun);
+    const sim = useQueryApiRequest<GlobalApiResponse<SimulationStatus>>({
+        key: 'simulation',
+        config: { errorNotification: false },
+        options: { enabled: allowed, refetchInterval: 30000 },
+    });
+    const start = useMutationApiRequest<GlobalApiResponse<SimulationStatus>, object>({
+        key: 'simulation-start',
+        config: SILENT,
+    });
+    const stop = useMutationApiRequest<GlobalApiResponse<SimulationStatus>, object>({
+        key: 'simulation-stop',
+        config: SILENT,
+    });
+    const [busy, setBusy] = useState(false);
+    const s = sim.data?.data;
+    if (!allowed || !s?.enabled) return null;
 
-  const toggle = async () => {
-    setBusy(true);
-    try {
-      if (s.running) {
-        await stop.mutateAsync({});
-        toast({ title: 'Simulasi dihentikan', body: 'Truk simulasi putus dari server.', level: 'warn' });
-      } else {
-        const r = await start.mutateAsync({});
-        toast({ title: 'Simulasi jalan', body: `${r.data?.devices ?? s.devices} truk palsu konek, data tiap ${r.data?.interval ?? s.interval} detik.` });
-      }
-    } catch (err) {
-      toast({ title: s.running ? 'Gagal menghentikan simulasi' : 'Gagal menjalankan simulasi', body: errText(err), level: 'crit' });
-    } finally {
-      setBusy(false);
-    }
-  };
+    const toggle = async () => {
+        setBusy(true);
+        try {
+            if (s.running) {
+                await stop.mutateAsync({});
+                toast({
+                    title: 'Simulasi dihentikan',
+                    body: 'Truk simulasi putus dari server.',
+                    level: 'warn',
+                });
+            } else {
+                const r = await start.mutateAsync({});
+                toast({
+                    title: 'Simulasi jalan',
+                    body: `${r.data?.devices ?? s.devices} truk palsu konek, data tiap ${r.data?.interval ?? s.interval} detik.`,
+                });
+            }
+        } catch (err) {
+            toast({
+                title: s.running ? 'Gagal menghentikan simulasi' : 'Gagal menjalankan simulasi',
+                body: errText(err),
+                level: 'crit',
+            });
+        } finally {
+            setBusy(false);
+        }
+    };
 
-  const label = s.running ? `Hentikan simulasi (${s.devices} truk)` : 'Jalankan simulasi';
-  const Icon = s.running ? Square : Play;
-  const btn = (
-    <button
-      type="button"
-      className={cn(className, s.running && 'bg-sidebar-accent text-sidebar-strong', mini && 'justify-center px-0')}
-      onClick={() => void toggle()}
-      disabled={busy}
-      aria-label={label}
-      aria-pressed={s.running}
-    >
-      <span className="relative grid place-items-center">
-        <Icon className={cn('size-4', s.running && 'fill-current text-destructive')} />
-        {s.running && <i className="absolute -right-1 -top-1 size-2 animate-pulse rounded-full bg-success" />}
-      </span>
-      {!mini && <span className="truncate">{busy ? 'Sebentar…' : label}</span>}
-    </button>
-  );
-  return mini ? <Tip label={label}>{btn}</Tip> : btn;
+    const label = s.running ? `Hentikan simulasi (${s.devices} truk)` : 'Jalankan simulasi';
+    const Icon = s.running ? Square : Play;
+    const btn = (
+        <button
+            type="button"
+            className={cn(
+                className,
+                s.running && 'bg-sidebar-accent text-sidebar-strong',
+                mini && 'justify-center px-0',
+            )}
+            onClick={() => void toggle()}
+            disabled={busy}
+            aria-label={label}
+            aria-pressed={s.running}
+        >
+            <span className="relative grid place-items-center">
+                <Icon className={cn('size-4', s.running && 'fill-current text-destructive')} />
+                {s.running && (
+                    <i className="absolute -right-1 -top-1 size-2 animate-pulse rounded-full bg-success" />
+                )}
+            </span>
+            {!mini && <span className="truncate">{busy ? 'Sebentar…' : label}</span>}
+        </button>
+    );
+    return mini ? <Tip label={label}>{btn}</Tip> : btn;
 }

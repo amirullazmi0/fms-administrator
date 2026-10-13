@@ -5,7 +5,12 @@ import { sitesMutations, SitesMutationKeys } from './sites';
 import { shiftsMutations, ShiftsMutationKeys } from './shifts';
 import { adminMutations, AdminMutationKeys } from './admin';
 
-export type AllMutationKeys = AuthMutationKeys | DevicesMutationKeys | SitesMutationKeys | ShiftsMutationKeys | AdminMutationKeys;
+export type AllMutationKeys =
+    | AuthMutationKeys
+    | DevicesMutationKeys
+    | SitesMutationKeys
+    | ShiftsMutationKeys
+    | AdminMutationKeys;
 
 export const allMutations: MutationDataService<AllMutationKeys> = {
     ...authMutations,
