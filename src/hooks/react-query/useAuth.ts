@@ -1,24 +1,20 @@
 'use client';
 import { useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import useMutationApiRequest from './useMutationApiRequest';
 import useQueryApiRequest from './useQueryApiRequest';
-import { setAuthCookies, setUserRoleCookie, clearAuthCookies } from '@/lib/auth-sync';
+import { SESSION } from '@/lib/session';
 import { useAuthStore } from '@/stores/auth.store';
 import { GlobalApiResponse } from '@/types/api/responses';
-import { axiosInstance } from '@/lib/axios';
+import { AuthResponse, LoginRequest, User } from '@/types/auth';
 import { toast } from 'sonner';
 
 export const NOT_ADMIN = 'Akun ini bukan administrator. Pakai aplikasi FMS Supervisor.';
-import { AuthResponse, LoginRequest, User } from '@/types/auth';
 
-/**
- * A session survives an expired access token: the axios interceptor renews it from the
- * refresh token mid-request. Checking only the access token would report a live session
- * as logged out and skip the call that triggers the renewal.
- */
-export const hasSession = () => Boolean(Cookies.get('admAccessToken') || Cookies.get('admRefreshToken'));
+// The BFF keeps the tokens in httpOnly cookies; this readable flag only says a session exists
+// (the BFF renews an expired access token from the refresh token on the next call).
+export const hasSession = () => Boolean(Cookies.get(SESSION.flag));
 
 export const useAuth = () => {
     const queryClient = useQueryClient();
@@ -30,18 +26,9 @@ export const useAuth = () => {
         options: {
             onSuccess: (res) => {
                 const data = res?.data;
-                if (!data?.access_token) return;
-                // fms-administrator is for administrators and roles allowed in (e.g. OWNER).
-                if (!data.user.admin_app) {
-                    void axiosInstance
-                        .post('/auth/logout', undefined, { headers: { Authorization: `Bearer ${data.access_token}` } })
-                        .catch(() => {});
-                    toast.error(NOT_ADMIN);
-                    return;
-                }
+                // Non-administrators are refused by the BFF (403 + NOT_ADMIN), so here the user may enter.
+                if (!data?.user) return;
                 toast.success('Login berhasil');
-                setAuthCookies(data.access_token, data.refresh_token, data.expires_in);
-                setUserRoleCookie(data.user.role);
                 setUser(data.user);
                 queryClient.setQueryData(['profile', undefined, undefined], { success: true, message: '', data: data.user });
                 const redirect = new URLSearchParams(globalThis.window.location.search).get('redirect');
@@ -53,7 +40,6 @@ export const useAuth = () => {
     // Local teardown runs whether or not the backend call succeeded.
     const finishLogout = () => {
         clearAuth();
-        clearAuthCookies();
         queryClient.clear();
         globalThis.window.location.href = '/auth/sign-in';
     };
@@ -64,23 +50,29 @@ export const useAuth = () => {
         options: { onSuccess: finishLogout, onError: finishLogout },
     });
 
+    // Ref: the mutation object is new every render, it must not retrigger the effect below.
+    const logoutRef = useRef(logout.mutate);
+    useEffect(() => {
+        logoutRef.current = logout.mutate;
+    });
+
     const profile = useQueryApiRequest<GlobalApiResponse<User>>({
         key: 'profile',
         config: { errorNotification: false },
         options: { enabled: hasSession(), staleTime: 5 * 60 * 1000, retry: false },
     });
 
-    // Keep the store (and the role cookie used by proxy.ts) in sync with the profile.
+    // Keep the store in sync with the profile.
     useEffect(() => {
         const user = profile.data?.data;
         if (user && !user.admin_app) {
+            // Access was taken away meanwhile: end the session (the BFF clears the cookies).
             toast.error(NOT_ADMIN);
-            finishLogout();
+            logoutRef.current();
             return;
         }
         if (user) {
             setUser(user);
-            if (Cookies.get('admUserRole') !== user.role) setUserRoleCookie(user.role);
         }
     }, [profile.data, setUser]);
 
