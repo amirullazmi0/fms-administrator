@@ -110,7 +110,7 @@ export default function TargetsView() {
             setForm(null);
             setEditing(null);
         } catch (err) {
-            toast({ title: 'Gagal nyimpen target', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menyimpan target', body: errText(err), level: 'crit' });
         }
     };
 
@@ -119,7 +119,7 @@ export default function TargetsView() {
             <div className="flex flex-wrap items-center gap-2">
                 <Note tone="info" className="flex-1">
                     Target dipakai di <b>Produksi per jam</b> (pencapaian %) dan di layar MDT
-                    operator (target per shift). Pakai target tonase kalau ada; kalau kosong,
+                    operator (target per shift). Target tonase dipakai bila ada; bila kosong,
                     pencapaian dihitung dari ritase.
                 </Note>
                 {canEdit && (
@@ -217,7 +217,7 @@ export default function TargetsView() {
                         <form className="flex flex-col gap-4" onSubmit={(e) => void save(e)}>
                             <DialogHeader>
                                 <DialogTitle>{editing ? 'Ubah target' : 'Target baru'}</DialogTitle>
-                                <DialogDescription>Kosongkan yang nggak dipakai.</DialogDescription>
+                                <DialogDescription>Kosongkan yang tidak dipakai.</DialogDescription>
                             </DialogHeader>
                             <Field label="Rute / fleet">
                                 <Combobox
@@ -299,7 +299,7 @@ export default function TargetsView() {
                     del
                         .mutateAsync({ __params: { id: toDelete.id } })
                         .catch((err) =>
-                            toast({ title: 'Gagal ngehapus', body: errText(err), level: 'crit' }),
+                            toast({ title: 'Gagal menghapus', body: errText(err), level: 'crit' }),
                         )
                 }
             />

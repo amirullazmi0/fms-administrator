@@ -60,7 +60,7 @@ export default function RolesView() {
             await del.mutateAsync({ __params: { id: r.id } });
             toast({ title: 'Role dihapus', body: r.name, level: 'warn' });
         } catch (err) {
-            toast({ title: 'Gagal ngehapus', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menghapus', body: errText(err), level: 'crit' });
         }
     };
 
@@ -68,8 +68,8 @@ export default function RolesView() {
         <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <Note tone="info" className="flex-1">
-                    Role nentuin apa yang boleh dilakuin user. User yang ditandai{' '}
-                    <b>Administrator</b> (di menu User) lolos semua cek tanpa lihat role.
+                    Role menentukan aksi yang boleh dilakukan user. User yang ditandai{' '}
+                    <b>Administrator</b> (di menu User) lolos semua pemeriksaan tanpa melihat role.
                 </Note>
                 {can(P.roleCreate) && (
                     <Button
@@ -164,7 +164,7 @@ export default function RolesView() {
                 open={toDelete != null}
                 onOpenChange={(o) => !o && setToDelete(null)}
                 title={`Hapus role ${toDelete?.name ?? ''}?`}
-                description="Role yang masih dipakai user atau jadi role default nggak bisa dihapus."
+                description="Role yang masih dipakai user atau menjadi role default tidak dapat dihapus."
                 confirmLabel="Hapus"
                 destructive
                 onConfirm={() => toDelete && void remove(toDelete)}

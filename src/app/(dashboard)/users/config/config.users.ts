@@ -4,7 +4,7 @@ import * as yup from 'yup';
 export const UserSchema = (isEdit: boolean) =>
     yup.object().shape({
         name: yup.string().trim().max(60, 'Nama maksimal 60 karakter').default(''),
-        email: yup.string().trim().required('Email wajib diisi').email('Format email nggak valid'),
+        email: yup.string().trim().required('Email wajib diisi').email('Format email tidak valid'),
         password: isEdit
             ? yup
                   .string()

@@ -102,7 +102,7 @@ export default function DelayCodesView() {
             });
             setForm(null);
         } catch (err) {
-            toast({ title: 'Gagal nyimpen', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menyimpan', body: errText(err), level: 'crit' });
         }
     };
 
@@ -110,7 +110,7 @@ export default function DelayCodesView() {
         <div className="mx-auto flex max-w-5xl flex-col gap-4 p-4 md:p-6">
             <div className="flex flex-wrap items-center gap-2">
                 <Note tone="info" className="flex-1">
-                    Tombol di MDT operator diambil dari sini. Kode lama nggak bisa dihapus (dipakai
+                    Tombol di MDT operator diambil dari sini. Kode lama tidak dapat dihapus (dipakai
                     riwayat), cukup dinonaktifkan. Kode <b>Q_LOAD</b> / <b>Q_DUMP</b> dipakai alert
                     antrean.
                 </Note>

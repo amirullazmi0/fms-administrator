@@ -88,7 +88,7 @@ export function useUpsertUser(user: User | null, open: boolean, onDone: () => vo
             onDone();
         } catch (err) {
             toast({
-                title: isEdit ? 'Gagal ngubah user' : 'Gagal bikin user',
+                title: isEdit ? 'Gagal mengubah user' : 'Gagal membuat user',
                 body: errText(err),
                 level: 'crit',
             });

@@ -51,7 +51,7 @@ export default function ModalUpsertUser({
                         <DialogDescription>
                             {isEdit
                                 ? user?.email
-                                : 'Akun buat masuk fms-supervisor / fms-administrator.'}
+                                : 'Akun untuk masuk ke fms-supervisor / fms-administrator.'}
                         </DialogDescription>
                     </DialogHeader>
                     <Field label="Nama" error={errors.name?.message}>
@@ -67,7 +67,7 @@ export default function ModalUpsertUser({
                     </Field>
                     <Field
                         label={isEdit ? 'Password baru' : 'Password'}
-                        hint={isEdit ? 'Kosongin kalau nggak diganti.' : 'Minimal 8 karakter.'}
+                        hint={isEdit ? 'Kosongkan bila tidak diganti.' : 'Minimal 8 karakter.'}
                         error={errors.password?.message}
                     >
                         <Input
@@ -130,8 +130,8 @@ export default function ModalUpsertUser({
                     </Field>
                     {isAdmin && (
                         <Note tone="info">
-                            User administrator nggak dicek role &amp; permission-nya lagi, pasti
-                            lolos. Role tetap dicatat buat tampilan.
+                            Role &amp; permission user administrator tidak diperiksa lagi, selalu
+                            lolos. Role tetap dicatat untuk tampilan.
                         </Note>
                     )}
 
@@ -144,7 +144,7 @@ export default function ModalUpsertUser({
                                     <span className="flex flex-col gap-1">
                                         <span>Aktif</span>
                                         <span className="text-xs font-normal text-muted-foreground">
-                                            User nonaktif nggak bisa login, sesinya langsung
+                                            User nonaktif tidak dapat login, sesinya langsung
                                             diputus.
                                         </span>
                                     </span>
@@ -163,7 +163,7 @@ export default function ModalUpsertUser({
                             Batal
                         </Button>
                         <Button type="submit" disabled={saving}>
-                            {saving ? 'Menyimpan…' : isEdit ? 'Simpan' : 'Bikin user'}
+                            {saving ? 'Menyimpan…' : isEdit ? 'Simpan' : 'Buat user'}
                         </Button>
                     </DialogFooter>
                 </form>

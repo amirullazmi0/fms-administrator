@@ -126,7 +126,7 @@ export default function ModalUpsertRole({
             });
             onOpenChange(false);
         } catch (err) {
-            toast({ title: 'Gagal nyimpen role', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menyimpan role', body: errText(err), level: 'crit' });
         } finally {
             setSaving(false);
         }
@@ -141,8 +141,8 @@ export default function ModalUpsertRole({
                             {isEdit ? `Ubah role ${role?.name}` : 'Role baru'}
                         </DialogTitle>
                         <DialogDescription>
-                            Centang apa aja yang boleh dilakuin role ini. User administrator selalu
-                            lolos tanpa dicek.
+                            Centang aksi yang boleh dilakukan role ini. User administrator selalu
+                            lolos tanpa diperiksa.
                         </DialogDescription>
                     </DialogHeader>
                     <Field label="Nama role" error={nameError}>
@@ -162,7 +162,7 @@ export default function ModalUpsertRole({
                             <span className="flex flex-col gap-1">
                                 <span>Role default</span>
                                 <span className="text-xs font-normal text-muted-foreground">
-                                    Dipakai kalau user baru dibikin tanpa pilih role.
+                                    Dipakai bila user baru dibuat tanpa memilih role.
                                 </span>
                             </span>
                             <Switch
@@ -174,7 +174,8 @@ export default function ModalUpsertRole({
                             <span className="flex flex-col gap-1">
                                 <span>Boleh masuk fms-administrator</span>
                                 <span className="text-xs font-normal text-muted-foreground">
-                                    Mis. OWNER buat lihat laporan. Aksesnya tetap sesuai permission.
+                                    Mis. OWNER untuk melihat laporan. Aksesnya tetap sesuai
+                                    permission.
                                 </span>
                             </span>
                             <Switch
@@ -243,7 +244,7 @@ export default function ModalUpsertRole({
                                 Batal
                             </Button>
                             <Button type="submit" disabled={saving}>
-                                {saving ? 'Menyimpan…' : isEdit ? 'Simpan' : 'Bikin role'}
+                                {saving ? 'Menyimpan…' : isEdit ? 'Simpan' : 'Buat role'}
                             </Button>
                         </div>
                     </DialogFooter>

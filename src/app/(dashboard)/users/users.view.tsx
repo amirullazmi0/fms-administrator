@@ -54,7 +54,7 @@ export default function UsersView() {
             await del.mutateAsync({ __params: { id: u.id } });
             toast({ title: 'User dihapus', body: u.email, level: 'warn' });
         } catch (err) {
-            toast({ title: 'Gagal ngehapus', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menghapus', body: errText(err), level: 'crit' });
         }
     };
 
@@ -159,7 +159,7 @@ export default function UsersView() {
                 </Table>
                 {!loading && users.length === 0 && (
                     <Empty className="p-4">
-                        {search ? 'Nggak ada user yang cocok.' : 'Belum ada user.'}
+                        {search ? 'Tidak ada user yang cocok.' : 'Belum ada user.'}
                     </Empty>
                 )}
                 {loading && <Empty className="p-4">Memuat…</Empty>}
@@ -171,7 +171,7 @@ export default function UsersView() {
                 open={toDelete != null}
                 onOpenChange={(o) => !o && setToDelete(null)}
                 title={`Hapus ${toDelete?.email ?? 'user'}?`}
-                description="User ini nggak bisa login lagi. Riwayat shift yang dia bikin tetap disimpan."
+                description="User ini tidak dapat login lagi. Riwayat shift yang dibuatnya tetap disimpan."
                 confirmLabel="Hapus"
                 destructive
                 onConfirm={() => toDelete && void remove(toDelete)}

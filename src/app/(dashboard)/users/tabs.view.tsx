@@ -1,6 +1,6 @@
 'use client';
-// Menu User: Staff (login dashboard: email + password + role) | Operator (driver / operator alat,
-// user_type operator, login MDT pakai NIK + PIN). Operator dikelola lewat /api/drivers.
+// Menu User: Staff (login dashboard: email + password + role) | Operator (operator unit,
+// user_type operator, login MDT memakai NIK + PIN). Operator dikelola melalui /api/drivers.
 import { HardHat, UserCog } from 'lucide-react';
 import { useQueryState } from 'nuqs';
 import DriverManager from '@/components/fleet/DriverManager';

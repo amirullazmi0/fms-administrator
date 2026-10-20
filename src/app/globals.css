@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ---------- Token warna (shadcn) ----------
-   Frame & sidebar biru slate, konten di panel putih, aksen kuning (--brand) buat yang aktif,
+   Frame & sidebar biru slate, konten di panel putih, aksen kuning (--brand) untuk yang aktif,
    tombol utama hitam (--primary). Peta selalu terang di dua tema. */
 :root {
     --radius: 0.75rem;
@@ -169,14 +169,14 @@
 }
 
 /* =====================================================================
-   Peta (Leaflet). Isi penanda & popup dibikin pakai string HTML, jadi gayanya di sini.
-   Peta selalu terang, warna di sini nggak ikut tema gelap.
+   Peta (Leaflet). Isi penanda & popup dibuat dengan string HTML, jadi gayanya di sini.
+   Peta selalu terang, warna di sini tidak mengikuti tema gelap.
    ===================================================================== */
 .leaflet-container {
     font-family: var(--font-sans);
     background: #eef0f2;
 }
-/* Preflight Tailwind bikin gambar max-width 100%, ubin peta jadi rusak. */
+/* Preflight Tailwind membuat gambar max-width 100%, sehingga ubin peta rusak. */
 .leaflet-container img,
 .leaflet-container svg {
     max-width: none !important;
@@ -202,7 +202,7 @@
     box-shadow: 0 10px 30px rgb(16 24 40 / 0.18);
 }
 
-/* Penanda truk: ikon truk solid, warnanya = status */
+/* Penanda unit: ikon dump truck solid, warnanya = status */
 .tm {
     position: relative;
     width: 44px;

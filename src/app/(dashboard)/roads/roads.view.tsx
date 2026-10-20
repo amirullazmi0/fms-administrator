@@ -117,12 +117,12 @@ export default function RoadsView() {
                       : await delAreas.mutateAsync({});
             toast({
                 title: 'Data jalan dihapus',
-                body: `${r.data?.deleted ?? 0} ${p.kind === 'path' ? 'jalur' : 'area'} dihapus. Dihitung ulang waktu dibutuhin.`,
+                body: `${r.data?.deleted ?? 0} ${p.kind === 'path' ? 'jalur' : 'area'} dihapus. Akan dihitung ulang saat dibutuhkan.`,
                 level: 'warn',
             });
             if (p.id && p.id === viewId) setViewId(null);
         } catch (err) {
-            toast({ title: 'Gagal ngehapus', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menghapus', body: errText(err), level: 'crit' });
         }
     };
     const canDelete = can(P.roadDelete);
@@ -133,9 +133,9 @@ export default function RoadsView() {
     return (
         <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:p-6">
             <Note tone="info">
-                Jalur jalan yang udah dihitung server (titik → titik, lewat jalan OSM) dan data
-                jalan per area yang diunduh dari Overpass. Dipakai peta rute & truk simulasi.
-                Dihapus = dihitung / diunduh ulang waktu dibutuhin lagi.
+                Jalur jalan yang sudah dihitung server (titik → titik, melalui jalan OSM) dan data
+                jalan per area yang diunduh dari Overpass. Dipakai peta rute & unit simulasi.
+                Dihapus = dihitung / diunduh ulang saat dibutuhkan kembali.
             </Note>
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
@@ -345,7 +345,7 @@ export default function RoadsView() {
                 open={pending != null}
                 onOpenChange={(o) => !o && setPending(null)}
                 title={`Hapus ${pending?.label ?? ''}?`}
-                description="Datanya dihitung / diunduh ulang dari OpenStreetMap waktu dibutuhin lagi (bisa makan waktu beberapa menit)."
+                description="Datanya dihitung / diunduh ulang dari OpenStreetMap saat dibutuhkan kembali (dapat memakan waktu beberapa menit)."
                 confirmLabel="Hapus"
                 destructive
                 onConfirm={() => pending && void remove(pending)}

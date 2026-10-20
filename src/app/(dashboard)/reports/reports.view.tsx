@@ -1,6 +1,6 @@
 'use client';
-// Dashboard laporan (administrator): KPI, tren harian, kondisi armada, ranking rute/driver/truk,
-// sebaran shift, lalu tabel ritase per rute / driver / truk / shift / hari. Klik baris buat detail.
+// Dashboard laporan (administrator): KPI, tren harian, kondisi armada, ranking rute/operator/unit,
+// sebaran shift, lalu tabel ritase per rute / operator / unit / shift / hari. Klik baris untuk detail.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ArrowDown,
@@ -92,7 +92,7 @@ type SortKey =
     | 'fuelUsed'
     | 'avgFuel';
 
-// Rata-rata 1 putaran = rata-rata berangkat + rata-rata pulang (butuh dua-duanya ada).
+// Cycle time rata-rata = rata-rata hauling + rata-rata return (keduanya harus ada).
 function cycleOf(
     r: Pick<ReportRow, 'done' | 'backDone' | 'avgDurationMs' | 'backAvgMs'>,
 ): number | null {
@@ -140,7 +140,7 @@ export default function ReportsView() {
         if (filter.imei) q.set('imei', filter.imei);
         return q.toString();
     }, [fromMs, toMs, filter]);
-    // Tren harian minimal 7 hari (biar "Hari ini" tetap kelihatan polanya).
+    // Tren harian minimal 7 hari (agar pola "Hari ini" tetap terlihat).
     const trendStart = range.from < addDays(range.to, -6) ? range.from : addDays(range.to, -6);
     const trendFromMs = new Date(`${trendStart}T00:00:00`).getTime();
 
@@ -497,12 +497,12 @@ export default function ReportsView() {
                     <DwellBox s={visits?.unloading} />
                 </ChartCard>
                 <ChartCard
-                    title="Lagi di titik sekarang"
+                    title="Sedang di titik saat ini"
                     hint={visits ? `${visits.current.length} unit` : undefined}
                 >
                     {!visits?.current.length ? (
                         <p className="m-0 py-6 text-center text-sm text-muted-foreground">
-                            Nggak ada unit di front loading / dumping.
+                            Tidak ada unit di front loading / dumping.
                         </p>
                     ) : (
                         <ul className="m-0 flex max-h-56 list-none flex-col gap-2 overflow-y-auto p-0">
@@ -808,7 +808,7 @@ function Detail({
                     Object.fromEntries(q),
                 ])?.meta;
                 const r = { trips: rows ?? [], total: meta?.total_data ?? rows?.length ?? 0 };
-                // Baris "tanpa driver/shift" nggak bisa difilter di server, disaring di sini.
+                // Baris "tanpa operator/shift" tidak dapat difilter di server, sehingga disaring di sini.
                 const list =
                     group === 'driver' && row.key === '-'
                         ? r.trips.filter((x) => !x.driverId)

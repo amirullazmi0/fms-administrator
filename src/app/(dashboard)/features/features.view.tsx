@@ -45,7 +45,8 @@ export default function FeaturesView() {
     return (
         <div className="mx-auto flex max-w-4xl flex-col gap-4 p-4 md:p-6">
             <p className="m-0 text-sm text-muted-foreground">
-                Fitur yang bisa dinyalain/dimatiin tanpa deploy ulang. Setelan disimpan di database.
+                Fitur yang dapat diaktifkan/dinonaktifkan tanpa deploy ulang. Setelan disimpan di
+                database.
             </p>
             {features.isLoading && <Empty>Memuat…</Empty>}
             {list.map((f) =>
@@ -71,7 +72,7 @@ function useUpdateFeature() {
             toast({ title: done });
             return true;
         } catch (err) {
-            toast({ title: 'Gagal nyimpen fitur', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menyimpan fitur', body: errText(err), level: 'crit' });
             return false;
         }
     };
@@ -94,7 +95,7 @@ function FeatureHead({
                     <b className="text-[15px]">{feature.name}</b>
                     <code className="text-xs text-muted-foreground">{feature.key}</code>
                     {feature.enabled ? (
-                        <Badge variant="success">Nyala</Badge>
+                        <Badge variant="success">Aktif</Badge>
                     ) : (
                         <Badge variant="muted">Mati</Badge>
                     )}
@@ -110,7 +111,7 @@ function FeatureHead({
                 checked={feature.enabled}
                 disabled={busy || !can(P.featureUpdate)}
                 onCheckedChange={onToggle}
-                aria-label={`${feature.enabled ? 'Matiin' : 'Nyalain'} ${feature.name}`}
+                aria-label={`${feature.enabled ? 'Nonaktifkan' : 'Aktifkan'} ${feature.name}`}
             />
         </div>
     );
@@ -123,7 +124,7 @@ function FeatureCard({ feature }: { feature: Feature }) {
         setBusy(true);
         await update(
             { __params: { key: feature.key }, enabled: v },
-            `${feature.name} ${v ? 'dinyalain' : 'dimatiin'}`,
+            `${feature.name} ${v ? 'diaktifkan' : 'dinonaktifkan'}`,
         );
         setBusy(false);
     };
@@ -169,7 +170,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
         setBusy(true);
         await update(
             { __params: { key: feature.key }, enabled: v },
-            v ? 'Simulasi dinyalain' : 'Simulasi dimatiin',
+            v ? 'Simulasi diaktifkan' : 'Simulasi dinonaktifkan',
         );
         setBusy(false);
     };
@@ -192,8 +193,8 @@ function SimulationCard({ feature }: { feature: Feature }) {
             } else {
                 await start.mutateAsync({});
                 toast({
-                    title: 'Simulasi jalan',
-                    body: `${form.devices} unit palsu konek ke server.`,
+                    title: 'Simulasi berjalan',
+                    body: `${form.devices} unit simulasi terhubung ke server.`,
                 });
             }
         } catch (err) {
@@ -233,7 +234,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
                     <span className="flex flex-col gap-1">
                         <span>Unit tanpa tugas keliling Jakarta</span>
                         <span className="text-xs font-normal text-muted-foreground">
-                            Kalau mati, unit yang nggak ditugasin di shift aktif diam parkir.
+                            Bila nonaktif, unit yang tidak ditugaskan di shift aktif tetap parkir.
                         </span>
                     </span>
                     <Switch
@@ -243,8 +244,8 @@ function SimulationCard({ feature }: { feature: Feature }) {
                     />
                 </Label>
                 <Note tone="info">
-                    Setelan baru kepakai waktu simulasi dijalankan lagi. Unit yang ditugasin di
-                    shift aktif jalan bolak-balik sesuai rutenya.
+                    Setelan baru berlaku saat simulasi dijalankan kembali. Unit yang ditugaskan di
+                    shift aktif melakukan hauling dan return sesuai rutenya.
                 </Note>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     {s && (
@@ -254,7 +255,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
                                 [
                                     'Status',
                                     s.running ? (
-                                        <Badge variant="success">Jalan · {s.devices} unit</Badge>
+                                        <Badge variant="success">Berjalan · {s.devices} unit</Badge>
                                     ) : (
                                         <Badge variant="muted">Berhenti</Badge>
                                     ),
