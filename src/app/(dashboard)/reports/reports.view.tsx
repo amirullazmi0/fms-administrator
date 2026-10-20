@@ -72,9 +72,9 @@ const PRESETS: { id: Preset; label: string }[] = [
 ];
 
 const GROUPS: { id: ReportGroup; label: string; col: string }[] = [
-    { id: 'route', label: 'Rute', col: 'Rute' },
-    { id: 'driver', label: 'Driver', col: 'Driver' },
-    { id: 'truck', label: 'Truk', col: 'Truk' },
+    { id: 'route', label: 'Rute', col: 'Rute / fleet' },
+    { id: 'driver', label: 'Operator', col: 'Operator' },
+    { id: 'truck', label: 'Unit', col: 'Unit' },
     { id: 'shift', label: 'Shift', col: 'Shift' },
     { id: 'day', label: 'Hari', col: 'Tanggal' },
 ];
@@ -82,6 +82,8 @@ const GROUPS: { id: ReportGroup; label: string; col: string }[] = [
 type SortKey =
     | 'label'
     | 'trips'
+    | 'ton'
+    | 'tonPerHour'
     | 'avgDurationMs'
     | 'backAvgMs'
     | 'cycle'
@@ -195,12 +197,13 @@ export default function ReportsView() {
             t ? (
                 <>
                     <HeaderStat label="Ritase" value={t.done} />
+                    <HeaderStat label="Tonase" value={`${fmtNum(t.ton)} t`} />
                     <HeaderStat
-                        label="Berangkat"
+                        label="Hauling"
                         value={t.done ? fmtDuration(t.avgDurationMs) : '—'}
                     />
                     <HeaderStat
-                        label="Pulang"
+                        label="Return"
                         value={t.backDone ? fmtDuration(t.backAvgMs) : '—'}
                     />
                     {t.fuelUsed != null && t.fuelUnit && (
@@ -375,33 +378,33 @@ export default function ReportsView() {
                         value={filter.driver}
                         onChange={(v) => setFilter({ ...filter, driver: v })}
                         options={[
-                            { value: '', label: 'Semua driver' },
+                            { value: '', label: 'Semua operator' },
                             ...drivers.map((d) => ({
                                 value: d.id,
                                 label: d.name,
                                 hint: d.employeeNo ?? undefined,
                             })),
                         ]}
-                        placeholder="Semua driver"
-                        searchPlaceholder="Cari driver…"
+                        placeholder="Semua operator"
+                        searchPlaceholder="Cari operator…"
                         icon={<UserRound className="size-4 text-muted-foreground" />}
-                        aria-label="Filter driver"
+                        aria-label="Filter operator"
                     />
                     <Combobox
                         value={filter.imei}
                         onChange={(v) => setFilter({ ...filter, imei: v })}
                         options={[
-                            { value: '', label: 'Semua truk' },
+                            { value: '', label: 'Semua unit' },
                             ...trucks.map((d) => ({
                                 value: d.imei,
                                 label: truckLabel(d),
                                 hint: d.vehicle ?? undefined,
                             })),
                         ]}
-                        placeholder="Semua truk"
+                        placeholder="Semua unit"
                         searchPlaceholder="Cari plat…"
                         icon={<Truck className="size-4 text-muted-foreground" />}
-                        aria-label="Filter truk"
+                        aria-label="Filter unit"
                     />
                     {filtered && (
                         <Button
@@ -424,11 +427,21 @@ export default function ReportsView() {
                         <Stat
                             label="Ritase selesai"
                             value={t.done}
-                            sub={`${t.backDone} pulang${t.trips > t.done ? ` · ${t.trips - t.done} belum sampai` : ''}`}
+                            sub={`${t.backDone} return${t.trips > t.done ? ` · ${t.trips - t.done} belum sampai` : ''}`}
                             big
                         />
                         <Stat
-                            label="Berangkat (loading → unloading)"
+                            label="Tonase"
+                            value={`${fmtNum(t.ton)} t`}
+                            sub={
+                                t.tonPerHour
+                                    ? `produktivitas ${fmtNum(t.tonPerHour, 1)} t/jam`
+                                    : 'ritase × truck factor'
+                            }
+                            big
+                        />
+                        <Stat
+                            label="Hauling (front → dumping)"
                             value={t.done ? fmtDuration(t.avgDurationMs) : '—'}
                             sub={
                                 t.done
@@ -438,7 +451,7 @@ export default function ReportsView() {
                             big
                         />
                         <Stat
-                            label="Pulang (unloading → loading)"
+                            label="Return (dumping → front)"
                             value={t.backDone ? fmtDuration(t.backAvgMs) : '—'}
                             sub={
                                 t.backDone
@@ -448,10 +461,9 @@ export default function ReportsView() {
                             big
                         />
                         <Stat
-                            label="1 putaran"
+                            label="Cycle time (1 putaran)"
                             value={cycleOf(t) != null ? fmtDuration(cycleOf(t)!) : '—'}
-                            sub="berangkat + pulang, rata-rata"
-                            big
+                            sub="hauling + return, rata-rata"
                         />
                         <Stat label="Total jarak" value={`${fmtKm(t.distance)} km`} />
                         <Stat
@@ -465,7 +477,7 @@ export default function ReportsView() {
                             sub={t.avgFuel != null ? `${fuel(t.avgFuel)} / ritase` : undefined}
                         />
                         <Stat
-                            label="BBM loading → unloading"
+                            label="BBM loading → dumping"
                             value={
                                 t.avgFuelAtLoading != null
                                     ? `${fmtNum(t.avgFuelAtLoading, 1)} → ${fmtNum(t.avgFuelAtUnloading ?? 0, 1)}`
@@ -478,19 +490,19 @@ export default function ReportsView() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <ChartCard title="Waktu di titik loading" hint="antri + muat">
+                <ChartCard title="Waktu di front loading" hint="antri + muat">
                     <DwellBox s={visits?.loading} />
                 </ChartCard>
-                <ChartCard title="Waktu di titik unloading" hint="antri + bongkar">
+                <ChartCard title="Waktu di titik dumping" hint="antri + bongkar">
                     <DwellBox s={visits?.unloading} />
                 </ChartCard>
                 <ChartCard
                     title="Lagi di titik sekarang"
-                    hint={visits ? `${visits.current.length} truk` : undefined}
+                    hint={visits ? `${visits.current.length} unit` : undefined}
                 >
                     {!visits?.current.length ? (
                         <p className="m-0 py-6 text-center text-sm text-muted-foreground">
-                            Nggak ada truk di titik loading / unloading.
+                            Nggak ada unit di front loading / dumping.
                         </p>
                     ) : (
                         <ul className="m-0 flex max-h-56 list-none flex-col gap-2 overflow-y-auto p-0">
@@ -510,7 +522,7 @@ export default function ReportsView() {
                                                     c.role === 'loading' ? 'success' : 'warning'
                                                 }
                                             >
-                                                {c.role === 'loading' ? 'Loading' : 'Unloading'}
+                                                {c.role === 'loading' ? 'Loading' : 'Dumping'}
                                             </Badge>
                                             <span className="truncate">{c.siteName}</span>
                                         </span>
@@ -531,7 +543,7 @@ export default function ReportsView() {
                         rows={(visits?.sites ?? []).map((x) => ({
                             key: x.siteId,
                             label: x.siteName,
-                            sub: `${x.role === 'loading' ? 'loading' : 'unloading'} · ${x.visits}× selesai${x.inside ? ` · ${x.inside} di dalam` : ''}`,
+                            sub: `${x.role === 'loading' ? 'loading' : 'dumping'} · ${x.visits}× selesai${x.inside ? ` · ${x.inside} di dalam` : ''}`,
                             value: x.avgDwellMs / 60e3,
                         }))}
                         color={SERIES[4]}
@@ -549,7 +561,7 @@ export default function ReportsView() {
                 >
                     <BarChart bars={tripBars} empty="Belum ada ritase di rentang ini." />
                 </ChartCard>
-                <ChartCard title="Armada sekarang" hint={`${activeDrivers} driver aktif`}>
+                <ChartCard title="Armada sekarang" hint={`${activeDrivers} operator aktif`}>
                     <Donut
                         slices={statusCount}
                         center={
@@ -560,7 +572,7 @@ export default function ReportsView() {
                                 </span>
                             </span>
                         }
-                        empty="Belum ada truk terdaftar."
+                        empty="Belum ada unit terdaftar."
                     />
                 </ChartCard>
             </div>
@@ -588,10 +600,10 @@ export default function ReportsView() {
                 <ChartCard title="Rute teramai" hint="ritase">
                     <RankBars rows={rank('route', (r) => r.done)} />
                 </ChartCard>
-                <ChartCard title="Driver teratas" hint="ritase">
+                <ChartCard title="Operator teratas" hint="ritase">
                     <RankBars rows={rank('driver', (r) => r.done)} color={SERIES[1]} />
                 </ChartCard>
-                <ChartCard title="Truk teratas" hint="ritase">
+                <ChartCard title="Unit teratas" hint="ritase">
                     <RankBars rows={rank('truck', (r) => r.done)} color={SERIES[2]} />
                 </ChartCard>
                 <ChartCard title="Ritase per shift">
@@ -609,14 +621,14 @@ export default function ReportsView() {
                         }
                     />
                 </ChartCard>
-                <ChartCard title="Jarak tempuh per truk" hint="km">
+                <ChartCard title="Jarak tempuh per unit" hint="km">
                     <RankBars
                         rows={rank('truck', (r) => r.distance / 1000)}
                         color={SERIES[3]}
                         format={(v) => fmtNum(v, v < 10 ? 1 : 0)}
                     />
                 </ChartCard>
-                <ChartCard title="BBM per truk" hint={unit ?? undefined}>
+                <ChartCard title="BBM per unit" hint={unit ?? undefined}>
                     <RankBars
                         rows={rank('truck', (r) => r.fuelUsed ?? 0)}
                         color={SERIES[4]}
@@ -650,7 +662,7 @@ export default function ReportsView() {
                 {!loading && rows.length === 0 ? (
                     <Empty className="px-4 pb-4">
                         Belum ada ritase di periode ini. Ritase tercatat dari penugasan shift: tiap
-                        kali truk keluar dari titik loading lalu sampai di titik unloading rutenya.
+                        kali unit keluar dari front loading lalu sampai di titik dumping rutenya.
                     </Empty>
                 ) : (
                     <Table>
@@ -658,16 +670,16 @@ export default function ReportsView() {
                             <TableRow>
                                 {th('label', gcol, false)}
                                 {th('trips', 'Ritase')}
-                                {th('avgDurationMs', 'Berangkat')}
-                                {th('backAvgMs', 'Pulang')}
-                                {th('cycle', '1 putaran')}
+                                {th('ton', 'Tonase')}
+                                {th('tonPerHour', 'Ton / jam')}
+                                {th('avgDurationMs', 'Hauling')}
+                                {th('backAvgMs', 'Return')}
+                                {th('cycle', 'Cycle time')}
                                 {th('distance', 'Jarak')}
                                 {th('stops', 'Berhenti')}
                                 {th('fuelUsed', 'BBM total')}
                                 {th('avgFuel', 'BBM / ritase')}
-                                <TableHead className="text-right">
-                                    BBM loading → unloading
-                                </TableHead>
+                                <TableHead className="text-right">BBM loading → dumping</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -699,6 +711,12 @@ export default function ReportsView() {
                                                 +{r.trips - r.done}
                                             </span>
                                         ) : null}
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium tabular-nums">
+                                        {fmtNum(r.ton)} t
+                                    </TableCell>
+                                    <TableCell className="text-right tabular-nums">
+                                        {r.tonPerHour ? fmtNum(r.tonPerHour, 1) : '—'}
                                     </TableCell>
                                     <TableCell className="text-right tabular-nums">
                                         {r.done ? fmtDuration(r.avgDurationMs) : '—'}
@@ -848,7 +866,7 @@ function DwellBox({ s }: { s: DwellStats | undefined }) {
     if (!s || (!s.visits && !s.inside))
         return (
             <p className="m-0 py-6 text-center text-sm text-muted-foreground">
-                Belum ada truk mampir di periode ini.
+                Belum ada unit mampir di periode ini.
             </p>
         );
     return (
@@ -866,7 +884,7 @@ function DwellBox({ s }: { s: DwellStats | undefined }) {
                 big
             />
             <Stat label="Total waktu" value={fmtDuration(s.totalMs)} />
-            <Stat label="Di dalam sekarang" value={`${s.inside} truk`} />
+            <Stat label="Di dalam sekarang" value={`${s.inside} unit`} />
         </div>
     );
 }
