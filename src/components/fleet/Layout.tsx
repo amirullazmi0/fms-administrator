@@ -16,6 +16,8 @@ import { Dialog as DialogPrimitive } from 'radix-ui';
 import {
     Bell,
     ChartColumn,
+    Gauge,
+    ListChecks,
     LogOut,
     Menu,
     Monitor,
@@ -25,6 +27,7 @@ import {
     ShieldCheck,
     SlidersHorizontal,
     Sun,
+    Target,
     Users,
     Waypoints,
 } from 'lucide-react';
@@ -73,7 +76,15 @@ export const useLayout = () => useContext(LayoutCtx);
 
 // Menu cuma nampilin halaman yang boleh dibuka role user (permission).
 const NAV: { to: string; label: string; icon: LucideIcon; end?: boolean; need: Permission[] }[] = [
-    { to: '/reports', label: 'Laporan', icon: ChartColumn, need: [P.reportRead] },
+    { to: '/reports', label: 'Laporan ritase', icon: ChartColumn, need: [P.reportRead] },
+    { to: '/production', label: 'Produksi per jam', icon: Gauge, need: [P.reportRead] },
+    {
+        to: '/targets',
+        label: 'Target produksi',
+        icon: Target,
+        need: [P.reportRead, P.targetManage],
+    },
+    { to: '/delay-codes', label: 'Delay code', icon: ListChecks, need: [P.delayCodeManage] },
     { to: '/users', label: 'User', icon: Users, need: [P.userReadAll] },
     { to: '/roles', label: 'Role & permission', icon: ShieldCheck, need: [P.roleRead] },
     { to: '/roads', label: 'Data jalan', icon: Waypoints, need: [P.roadRead] },
@@ -444,16 +455,16 @@ function GlobalNotifier() {
             !devices[msg.device.imei].online
         ) {
             toast({
-                title: 'Kendaraan online',
+                title: 'Unit online',
                 body: `${displayName(msg.device)} (${msg.device.imei}) konek lagi.`,
             });
         } else if (msg.type === 'event' && msg.event.kind === 'new') {
             toast({
-                title: 'Kendaraan baru terdaftar',
+                title: 'Unit baru terdaftar',
                 body: `Alat GPS IMEI ${msg.event.imei} ditambahin ke database.`,
                 actions: [{ label: 'Buka di Live', to: '/' }],
             });
-            notify('Kendaraan baru terdaftar', msg.event.imei);
+            notify('Unit baru terdaftar', msg.event.imei);
         } else if (msg.type === 'notice') {
             toast({
                 title: msg.title,
