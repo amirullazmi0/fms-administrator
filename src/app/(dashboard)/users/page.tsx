@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import PageLoading from '@/components/custom/page-loading';
 
-const UsersView = dynamic(() => import('./users.view'), {
+const UsersView = dynamic(() => import('./tabs.view'), {
     ssr: false,
     loading: () => <PageLoading />,
 });
