@@ -1,5 +1,5 @@
 'use client';
-// Peta halaman Titik & rute: semua titik, posisi truk, titik yang lagi diedit, dan rute yang dipilih.
+// Peta halaman Front, dumping & rute: semua titik, posisi unit, titik yang sedang diedit, dan rute yang dipilih.
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { TRUCK_GLYPH } from '@/lib/markers';
@@ -23,17 +23,17 @@ interface Props {
     sites: Site[];
     devices: Device[];
     selectedId: string | null;
-    draft: Draft | null; // titik yang lagi dibuat/diubah (cuma admin)
-    editingId: string | null; // id titik yang lagi diubah (disembunyiin dari layer biasa)
+    draft: Draft | null; // titik yang sedang dibuat/diubah (hanya admin)
+    editingId: string | null; // id titik yang sedang diubah (disembunyikan dari layer biasa)
     onSelect: (id: string) => void;
     onPick: (lat: number, lng: number) => void; // klik peta / geser penanda
-    canEdit: boolean; // true = lagi naruh/mindahin titik. false = klik peta cuma nampilin info koordinat
-    routeLine: { from: Site; to: Site } | null; // rute yang lagi dipilih: garis loading -> unloading
-    roles?: Map<string, SiteType>; // peran titik di rute yang lagi dipilih (L/U di penanda)
-    roadPaths: [number, number][][] | null; // jalur jalan (dari OSRM). null = garis lurus aja
+    canEdit: boolean; // true = sedang memasang/memindahkan titik. false = klik peta hanya menampilkan info koordinat
+    routeLine: { from: Site; to: Site } | null; // rute yang sedang dipilih: garis front loading -> dumping
+    roles?: Map<string, SiteType>; // peran titik di rute yang sedang dipilih (L/U di penanda)
+    roadPaths: [number, number][][] | null; // jalur jalan (dari OSRM). null = garis lurus saja
     activePath: number;
     onPathClick: (i: number) => void;
-    actualPath: [number, number][] | null; // jejak GPS ritase terakhir (jalan yang beneran dilalui)
+    actualPath: [number, number][] | null; // jejak GPS ritase terakhir (jalan yang benar-benar dilalui)
     className?: string;
 }
 
@@ -50,7 +50,7 @@ function truckPopup(d: Device, job: Duty | undefined): string {
     <div class="mp-title">${escHtml(truckLabel(d))}</div>
     <dl>
       <dt>Status</dt><dd>${STATUS_LABEL[st]}${d.last ? ` · ${d.last.speed} km/jam` : ''}</dd>
-      ${job ? `<dt>Operator</dt><dd>${escHtml(job.driverName)} (${escHtml(job.shiftName)})</dd><dt>Rute</dt><dd>${escHtml(job.routeName)}</dd>` : '<dt>Tugas</dt><dd>Nganggur</dd>'}
+      ${job ? `<dt>Operator</dt><dd>${escHtml(job.driverName)} (${escHtml(job.shiftName)})</dd><dt>Rute</dt><dd>${escHtml(job.routeName)}</dd>` : '<dt>Tugas</dt><dd>Tidak bertugas</dd>'}
       <dt>Update</dt><dd>${ago(lastHeard(d))}</dd>
       <dt>Koordinat</dt><dd class="mono">${d.pos!.lat.toFixed(6)}, ${d.pos!.lng.toFixed(6)}</dd>
     </dl>
@@ -98,7 +98,7 @@ export default function SitesMap({
         m.on('click', (e: L.LeafletMouseEvent) => {
             const { lat, lng } = e.latlng;
             if (cb.current.canEdit) return cb.current.onPick(lat, lng);
-            // Nggak lagi naruh titik: tampilin koordinat + titik terdekat.
+            // Tidak sedang memasang titik: tampilkan koordinat + titik terdekat.
             const near = cb.current.sites
                 .map((s) => ({ s, d: distanceM({ lat, lng }, s) }))
                 .sort((a, b) => a.d - b.d)[0];
@@ -135,13 +135,13 @@ export default function SitesMap({
             sites.filter((s) => s.id !== editingId),
             { onClick: (id) => cb.current.onSelect(id), selectedId, truckName: name, roles },
         );
-        // Layer digambar ulang = popup ikut hilang, jadi dibuka lagi buat titik yang baru dipilih.
+        // Layer digambar ulang = popup ikut hilang, jadi dibuka kembali untuk titik yang baru dipilih.
         if (selectedId && selectedId !== popped.current) markers.get(selectedId)?.openPopup();
         popped.current = selectedId;
     }, [sites, selectedId, editingId, roles]);
 
-    // Posisi truk sekarang (patokan buat naruh titik). Marker di-update, bukan digambar ulang,
-    // biar popup yang lagi kebuka nggak ketutup tiap ada data baru.
+    // Posisi unit saat ini (patokan untuk memasang titik). Marker diperbarui, bukan digambar ulang,
+    // agar popup yang sedang terbuka tidak tertutup setiap ada data baru.
     useEffect(() => {
         const g = truckLayer.current;
         if (!g) return;
@@ -242,7 +242,7 @@ export default function SitesMap({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lineKey, roadPaths, activePath, actualPath]);
 
-    // Titik yang lagi diedit: penanda bisa digeser
+    // Titik yang sedang diedit: penanda bisa digeser
     useEffect(() => {
         const g = draftLayer.current;
         if (!g) return;
@@ -263,13 +263,13 @@ export default function SitesMap({
             cb.current.onPick(ll.lat, ll.lng);
         });
         mk.addTo(g);
-        // Mis. habis "pakai posisi truk": kalau titiknya di luar layar, peta ikut geser.
+        // Mis. setelah "pakai posisi unit": bila titiknya di luar layar, peta ikut bergeser.
         const m = map.current;
         if (m && !m.getBounds().contains([draft.lat, draft.lng]))
             m.setView([draft.lat, draft.lng], Math.max(m.getZoom(), 17));
     }, [draft]);
 
-    // Zoom awal: ke semua titik, kalau belum ada ke posisi truk.
+    // Zoom awal: ke semua titik, bila belum ada ke posisi unit.
     useEffect(() => {
         const m = map.current;
         if (!m || fitted.current) return;
@@ -287,7 +287,7 @@ export default function SitesMap({
         const m = map.current;
         const s = sites.find((x) => x.id === selectedId);
         if (m && s) m.setView([s.lat, s.lng], Math.max(m.getZoom(), 18));
-        // cuma waktu pilihan berubah
+        // hanya saat pilihan berubah
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedId]);
 

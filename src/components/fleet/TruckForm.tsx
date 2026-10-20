@@ -1,5 +1,5 @@
 'use client';
-// Dialog ubah info truk (plat, nama, jenis) + hapus truk beserta semua datanya.
+// Dialog ubah info unit (plat, nama, jenis) + hapus unit beserta semua datanya.
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Trash2 } from 'lucide-react';
@@ -61,7 +61,7 @@ export default function TruckForm({
             toast({ title: 'Info unit disimpan', body: form.plate || form.name || d.imei });
             onOpenChange(false);
         } catch (err) {
-            toast({ title: 'Gagal nyimpen', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menyimpan', body: errText(err), level: 'crit' });
         } finally {
             setSaving(false);
         }
@@ -72,12 +72,12 @@ export default function TruckForm({
             await del.mutateAsync();
             toast({
                 title: 'Unit dihapus',
-                body: `${truckLabel(d)} dihapus dari daftar. Riwayat GPS-nya tetap disimpan buat laporan.`,
+                body: `${truckLabel(d)} dihapus dari daftar. Riwayat GPS-nya tetap disimpan untuk laporan.`,
                 level: 'warn',
             });
             onOpenChange(false);
         } catch (err) {
-            toast({ title: 'Gagal ngehapus', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menghapus', body: errText(err), level: 'crit' });
         }
     };
 
@@ -150,7 +150,7 @@ export default function TruckForm({
                 open={confirmDelete}
                 onOpenChange={setConfirmDelete}
                 title={`Hapus ${truckLabel(d)}?`}
-                description="Unit ini hilang dari daftar. Record GPS-nya tetap disimpan buat laporan lama; kalau alatnya konek lagi, unit muncul lagi."
+                description="Unit ini dihapus dari daftar. Record GPS-nya tetap disimpan untuk laporan lama; bila alatnya terhubung kembali, unit akan muncul lagi."
                 confirmLabel="Ya, hapus unit"
                 destructive
                 onConfirm={() => void remove()}

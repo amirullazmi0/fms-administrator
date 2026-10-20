@@ -1,4 +1,4 @@
-// Truk yang lagi bertugas: dari penugasan shift aktif di tiap rute (Route.onDuty).
+// Unit yang sedang bertugas: dari penugasan shift aktif di setiap rute (Route.onDuty).
 import { useMemo } from 'react';
 import { useData } from '@/provider/StreamProvider';
 
@@ -11,7 +11,7 @@ export interface Duty {
     routeName: string;
 }
 
-// imei -> tugasnya sekarang. Truk yang nggak ada di sini = nganggur.
+// imei -> tugasnya saat ini. Unit yang tidak ada di sini = tidak bertugas.
 export function useDuty(): Map<string, Duty> {
     const { routes } = useData();
     return useMemo(() => {

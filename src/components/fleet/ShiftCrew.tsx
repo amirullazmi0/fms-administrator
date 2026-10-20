@@ -1,8 +1,8 @@
 'use client';
-// Kru satu shift: driver + truk yang jalan di rute shift ini.
-//   - "Tugaskan driver": pilih driver (bisa dicari), truk keisi otomatis (truk terakhir driver itu).
-//   - Driver/truk yang lagi ada di shift lain yang jamnya bentrok nggak bisa dipilih.
-//   - Penugasan yang udah selesai (ganti truk / selesai tugas) tetap tampil pudar sebagai riwayat.
+// Kru satu shift: operator + unit yang beroperasi di rute shift ini.
+//   - "Tugaskan operator": pilih operator (bisa dicari), unit terisi otomatis (unit terakhir operator tersebut).
+//   - Operator/unit yang sedang di shift lain dengan jam bentrok tidak dapat dipilih.
+//   - Penugasan yang sudah selesai (ganti unit / selesai tugas) tetap tampil pudar sebagai riwayat.
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ChevronDown, Copy, Plus, Truck, UserPlus, X } from 'lucide-react';
@@ -29,7 +29,7 @@ type Last = Record<string, { imei: string; routeId: string }>;
 interface Props {
     shift: Shift;
     route: Route | undefined;
-    others: Shift[]; // shift lain (buat ngecek driver/truk yang lagi dipakai)
+    others: Shift[]; // shift lain (untuk memeriksa operator/unit yang sedang dipakai)
     trips: TripRecord[];
     editable: boolean;
     onChanged: () => void;
@@ -47,7 +47,7 @@ function span(s: Shift, now: number): [number, number] {
     return [start, end];
 }
 
-// Driver & truk yang dipakai shift lain yang jamnya bentrok: id -> "Sore · Rute B".
+// Operator & unit yang dipakai shift lain pada jam yang bentrok: id -> "Sore · Rute B".
 function busyElsewhere(shift: Shift, others: Shift[], routes: Route[]) {
     const now = Date.now();
     const [a0, a1] = span(shift, now);
@@ -85,7 +85,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
         params: { id: shift.id },
         config: SILENT,
     });
-    const [adding, setAdding] = useState<string | null>(null); // null = form tertutup, '' = kosong, id = driver dari daftar "belum dapat tugas"
+    const [adding, setAdding] = useState<string | null>(null); // null = form tertutup, '' = kosong, id = operator dari daftar "belum mendapat tugas"
     const [expanded, setExpanded] = useState<string | null>(null);
 
     const trucks = useMemo(
@@ -103,7 +103,10 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
     const freeTrucks = trucks.filter((t) => !usedTrucks.has(t.imei) && !busy.trucks.has(t.imei));
     const unit = trips.find((t) => t.fuelUnit)?.fuelUnit ?? null;
 
-    if (!route) return <Note>Shift ini belum punya rute. Ubah shift dan pilih rutenya dulu.</Note>;
+    if (!route)
+        return (
+            <Note>Shift ini belum punya rute. Ubah shift dan pilih rutenya terlebih dahulu.</Note>
+        );
 
     const copyPrevious = async () => {
         try {
@@ -117,7 +120,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
             });
             onChanged();
         } catch (err) {
-            toast({ title: 'Gagal nyalin', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menyalin penugasan', body: errText(err), level: 'crit' });
         }
     };
 
@@ -125,7 +128,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
         <section className="flex flex-col gap-3" aria-label="Operator di shift ini">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="m-0 text-[15px] font-semibold">
-                    Driver &amp; truk{' '}
+                    Operator &amp; unit{' '}
                     <span className="font-normal text-muted-foreground">
                         · {open.length} bertugas
                     </span>
@@ -190,7 +193,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
                                 {freeDrivers.length
                                     ? 'Tugaskan operator'
                                     : drivers.length
-                                      ? 'Semua operator aktif udah dapat tugas'
+                                      ? 'Semua operator aktif sudah mendapat tugas'
                                       : 'Belum ada operator. Tambah di tab Operator.'}
                             </Button>
                         </div>
@@ -225,7 +228,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
                     {freeTrucks.length > 0 && (
                         <div className="flex flex-col gap-2">
                             <span className="text-xs font-semibold text-muted-foreground">
-                                Unit nganggur
+                                Unit tidak bertugas
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                                 {freeTrucks.map((t) => (
@@ -246,12 +249,12 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
     );
 }
 
-// ---------- Tambah driver ----------
+// ---------- Tambah operator ----------
 interface AddProps {
     shift: Shift;
     freeDrivers: Driver[];
     freeTrucks: Device[];
-    allDrivers: Driver[]; // termasuk yang lagi di shift lain (ditampilin tapi dimatiin)
+    allDrivers: Driver[]; // termasuk yang sedang di shift lain (ditampilkan tetapi dinonaktifkan)
     allTrucks: Device[];
     busy: Busy;
     last: Last;
@@ -307,7 +310,7 @@ function AddForm({
             onDone();
             if (freeDrivers.length <= 1) onClose();
         } catch (err) {
-            toast({ title: 'Gagal nugasin', body: errText(err), level: 'crit' });
+            toast({ title: 'Gagal menugaskan operator', body: errText(err), level: 'crit' });
         } finally {
             setSaving(false);
         }
@@ -375,13 +378,13 @@ function AddForm({
                 </Button>
             </div>
             {freeTrucks.length === 0 && (
-                <Empty className="text-xs sm:basis-full">Semua unit lagi dipakai.</Empty>
+                <Empty className="text-xs sm:basis-full">Semua unit sedang dipakai.</Empty>
             )}
         </form>
     );
 }
 
-// ---------- Satu driver ----------
+// ---------- Satu operator ----------
 interface ItemProps {
     a: Assignment;
     driver: Driver | undefined;
@@ -414,7 +417,7 @@ function AssignmentItem({
     const toast = useToast();
     const [confirm, setConfirm] = useState(false);
     const ended = a.endAt != null;
-    // Jam berlaku: tampil kalau penugasan nggak penuh satu shift.
+    // Jam berlaku: tampil bila penugasan tidak berlaku penuh satu shift.
     const when = ended
         ? `${fmtHm(a.startAt ?? shiftStart ?? a.createdAt)}–${fmtHm(a.endAt!)}`
         : a.startAt
@@ -448,7 +451,7 @@ function AssignmentItem({
                 title: 'Unit diganti',
                 body:
                     status === 'active'
-                        ? 'Ritase sebelumnya tetap kecatat di unit lama.'
+                        ? 'Ritase sebelumnya tetap tercatat pada unit lama.'
                         : undefined,
             });
             onChanged();
@@ -465,7 +468,9 @@ function AssignmentItem({
                         ? `${driver?.name ?? 'Operator'} selesai tugas`
                         : `${driver?.name ?? 'Operator'} dilepas dari shift`,
                 body:
-                    r.result === 'ended' ? 'Ritase yang udah dijalanin tetap kecatat.' : undefined,
+                    r.result === 'ended'
+                        ? 'Ritase yang sudah dijalankan tetap tercatat.'
+                        : undefined,
                 level: 'warn',
             });
             onChanged();
@@ -501,9 +506,9 @@ function AssignmentItem({
                         <span className="flex items-center gap-1.5 text-sm">
                             <b className="tabular-nums">{done.length}</b>
                             <span className="text-xs text-muted-foreground">
-                                ritase · {back.length} pulang
+                                ritase · {back.length} return
                             </span>
-                            {going && <Badge variant="info">jalan</Badge>}
+                            {going && <Badge variant="info">berjalan</Badge>}
                         </span>
                         {unit && trips.length > 0 && (
                             <span className="text-xs text-muted-foreground tabular-nums">
@@ -532,7 +537,7 @@ function AssignmentItem({
                             }))}
                             placeholder="Ganti unit…"
                             searchPlaceholder="Cari plat…"
-                            empty="Nggak ada unit yang nganggur."
+                            empty="Tidak ada unit yang tidak bertugas."
                             aria-label="Ganti unit"
                         />
                         <Button
@@ -551,7 +556,7 @@ function AssignmentItem({
                 <div className="flex flex-col gap-2 px-4 pb-4">
                     {(done.length > 0 || back.length > 0) && (
                         <Empty className="text-xs">
-                            Rata-rata berangkat {avgOf(done)} · pulang {avgOf(back)}.
+                            Rata-rata hauling {avgOf(done)} · return {avgOf(back)}.
                         </Empty>
                     )}
                     <div className="rounded-lg border bg-card">
@@ -560,7 +565,7 @@ function AssignmentItem({
                             empty={
                                 status === 'planned'
                                     ? 'Shift belum mulai.'
-                                    : 'Belum ada ritase. Kehitung setelah unit keluar dari front loading lalu sampai di dumping.'
+                                    : 'Belum ada ritase. Ritase terhitung setelah unit keluar dari front loading lalu tiba di dumping.'
                             }
                         />
                     </div>
@@ -576,7 +581,7 @@ function AssignmentItem({
                 }
                 description={
                     ending
-                        ? 'Ritase yang udah dijalanin tetap kecatat. Operator & truknya bisa ditugaskan lagi.'
+                        ? 'Ritase yang sudah dijalankan tetap tercatat. Operator dan unitnya dapat ditugaskan kembali.'
                         : 'Penugasan ini dihapus dari shift.'
                 }
                 confirmLabel={ending ? 'Selesai tugas' : 'Lepas'}

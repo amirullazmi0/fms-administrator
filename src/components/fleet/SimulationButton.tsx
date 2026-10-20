@@ -53,8 +53,8 @@ export default function SimulationButton({
             } else {
                 const r = await start.mutateAsync({});
                 toast({
-                    title: 'Simulasi jalan',
-                    body: `${r.data?.devices ?? s.devices} unit palsu konek, data tiap ${r.data?.interval ?? s.interval} detik.`,
+                    title: 'Simulasi berjalan',
+                    body: `${r.data?.devices ?? s.devices} unit simulasi terhubung, data setiap ${r.data?.interval ?? s.interval} detik.`,
                 });
             }
         } catch (err) {

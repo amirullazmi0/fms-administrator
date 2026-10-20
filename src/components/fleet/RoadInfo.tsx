@@ -1,6 +1,6 @@
 'use client';
-// Jalur jalan loading → unloading dan estimasi waktu tempuh truk.
-// Kalau server routing nggak kejangkau, tampilin perkiraan kasar dari jarak lurus.
+// Jalur jalan front loading → dumping dan estimasi waktu tempuh unit.
+// Bila server routing tidak terjangkau, tampilkan perkiraan kasar dari jarak lurus.
 import type { ReactNode } from 'react';
 import { fmtDuration, fmtNum } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ export interface RoadState {
     error: string | null;
 }
 
-// Perkiraan kasar: jalan biasanya ±1,4× jarak lurus, truk rata-rata 40 km/jam.
+// Perkiraan kasar: jalan biasanya ±1,4× jarak lurus, unit rata-rata 40 km/jam.
 const DETOUR = 1.4;
 const TRUCK_KMH = 40;
 
@@ -87,7 +87,7 @@ function HistoryInfo({ history: h }: { history: RouteHistory | null }) {
             <Box line="actual" title="Jalur asli unit">
                 <Empty>
                     Belum ada ritase selesai di rute ini dalam {h.days} hari terakhir. Garis jalan
-                    asli muncul setelah unit pertama kali jalan dari loading ke dumping.
+                    aktual muncul setelah unit pertama kali berjalan dari front loading ke dumping.
                 </Empty>
             </Box>
         );
@@ -119,14 +119,14 @@ function HistoryInfo({ history: h }: { history: RouteHistory | null }) {
     );
 }
 
-// Dari routing (OSRM / data jalan OSM), atau perkiraan kasar kalau dua-duanya gagal.
+// Dari routing (OSRM / data jalan OSM), atau perkiraan kasar bila keduanya gagal.
 function PlannedInfo({ from, to, road, active, onActive, history }: Props) {
     const straight = distanceM(from, to);
 
-    if (road.loading) return <Empty>Nyari jalur jalan…</Empty>;
+    if (road.loading) return <Empty>Mencari jalur jalan…</Empty>;
 
     if (!road.data) {
-        if (history?.trips) return null; // udah ada estimasi dari perjalanan asli, perkiraan kasar nggak perlu
+        if (history?.trips) return null; // sudah ada estimasi dari ritase aktual, perkiraan kasar tidak diperlukan
         const est = straight * DETOUR;
         return (
             <Box line="rough" title="Estimasi kasar">
@@ -137,7 +137,7 @@ function PlannedInfo({ from, to, road, active, onActive, history }: Props) {
                     ]}
                 />
                 <Empty className="text-xs">
-                    Jalur jalan nggak bisa diambil{road.error ? ` (${road.error})` : ''}. Ini
+                    Jalur jalan tidak dapat diambil{road.error ? ` (${road.error})` : ''}. Ini
                     perkiraan dari jarak lurus {km(straight)} × {DETOUR} dengan kecepatan unit{' '}
                     {TRUCK_KMH} km/jam.
                 </Empty>
@@ -177,8 +177,8 @@ function PlannedInfo({ from, to, road, active, onActive, history }: Props) {
                 ))}
             </ol>
             <Empty className="text-xs">
-                Dari {road.data.source}. Estimasi truk = waktu mobil × {fmtNum(truckFactor, 1)},
-                belum termasuk macet &amp; istirahat.
+                Dari {road.data.source}. Estimasi unit = waktu kendaraan ringan ×{' '}
+                {fmtNum(truckFactor, 1)}, belum termasuk macet &amp; istirahat.
             </Empty>
         </Box>
     );
