@@ -84,17 +84,17 @@ function HistoryInfo({ history: h }: { history: RouteHistory | null }) {
     if (!h) return null;
     if (!h.trips) {
         return (
-            <Box line="actual" title="Jalur asli truk">
+            <Box line="actual" title="Jalur asli unit">
                 <Empty>
                     Belum ada ritase selesai di rute ini dalam {h.days} hari terakhir. Garis jalan
-                    asli muncul setelah truk pertama kali jalan dari loading ke unloading.
+                    asli muncul setelah unit pertama kali jalan dari loading ke dumping.
                 </Empty>
             </Box>
         );
     }
     const unit = h.fuelUnit;
     return (
-        <Box line="actual" title={`Jalur asli truk · ${h.trips} ritase (${h.days} hari)`}>
+        <Box line="actual" title={`Jalur asli unit · ${h.trips} ritase (${h.days} hari)`}>
             <Nums
                 items={[
                     ['Rata-rata', fmtDuration(h.avgDurationMs)],
@@ -133,12 +133,12 @@ function PlannedInfo({ from, to, road, active, onActive, history }: Props) {
                 <Nums
                     items={[
                         ['Jarak ±', km(est)],
-                        ['Waktu truk ±', fmtDuration((est / 1000 / TRUCK_KMH) * 3600e3)],
+                        ['Waktu unit ±', fmtDuration((est / 1000 / TRUCK_KMH) * 3600e3)],
                     ]}
                 />
                 <Empty className="text-xs">
                     Jalur jalan nggak bisa diambil{road.error ? ` (${road.error})` : ''}. Ini
-                    perkiraan dari jarak lurus {km(straight)} × {DETOUR} dengan kecepatan truk{' '}
+                    perkiraan dari jarak lurus {km(straight)} × {DETOUR} dengan kecepatan unit{' '}
                     {TRUCK_KMH} km/jam.
                 </Empty>
             </Box>
@@ -168,8 +168,8 @@ function PlannedInfo({ from, to, road, active, onActive, history }: Props) {
                             <Nums
                                 items={[
                                     ['Jarak', km(p.distance)],
-                                    ['Truk ±', fmtDuration(p.truckDurationS * 1000)],
-                                    ['Mobil', fmtDuration(p.durationS * 1000)],
+                                    ['Unit ±', fmtDuration(p.truckDurationS * 1000)],
+                                    ['Unit', fmtDuration(p.durationS * 1000)],
                                 ]}
                             />
                         </button>

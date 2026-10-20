@@ -109,7 +109,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
         try {
             const r = (await copy.mutateAsync()).data!;
             toast({
-                title: `${r.added} driver disalin dari ${r.from}`,
+                title: `${r.added} operator disalin dari ${r.from}`,
                 body: r.skipped.length
                     ? `${r.skipped.length} dilewati: ${r.skipped[0]}`
                     : undefined,
@@ -122,7 +122,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
     };
 
     return (
-        <section className="flex flex-col gap-3" aria-label="Driver di shift ini">
+        <section className="flex flex-col gap-3" aria-label="Operator di shift ini">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="m-0 text-[15px] font-semibold">
                     Driver &amp; truk{' '}
@@ -158,7 +158,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
                     ))}
                     {list.length === 0 && (
                         <li className="px-4 py-5">
-                            <Empty>Belum ada driver di shift ini.</Empty>
+                            <Empty>Belum ada operator di shift ini.</Empty>
                         </li>
                     )}
                 </ul>
@@ -188,10 +188,10 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
                             >
                                 <UserPlus />{' '}
                                 {freeDrivers.length
-                                    ? 'Tugaskan driver'
+                                    ? 'Tugaskan operator'
                                     : drivers.length
-                                      ? 'Semua driver aktif udah dapat tugas'
-                                      : 'Belum ada driver. Tambah di tab Driver.'}
+                                      ? 'Semua operator aktif udah dapat tugas'
+                                      : 'Belum ada operator. Tambah di tab Operator.'}
                             </Button>
                         </div>
                     ))}
@@ -205,7 +205,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
                     {freeDrivers.length > 0 && (
                         <div className="flex flex-col gap-2">
                             <span className="text-xs font-semibold text-muted-foreground">
-                                Driver belum dapat tugas
+                                Operator belum dapat tugas
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                                 {freeDrivers.map((d) => (
@@ -225,7 +225,7 @@ export default function ShiftCrew({ shift, route, others, trips, editable, onCha
                     {freeTrucks.length > 0 && (
                         <div className="flex flex-col gap-2">
                             <span className="text-xs font-semibold text-muted-foreground">
-                                Truk nganggur
+                                Unit nganggur
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                                 {freeTrucks.map((t) => (
@@ -301,7 +301,7 @@ function AddForm({
         try {
             await assign.mutateAsync({ driverId, imei });
             const d = freeDrivers.find((x) => x.id === driverId);
-            toast({ title: `${d?.name ?? 'Driver'} ditugaskan` });
+            toast({ title: `${d?.name ?? 'Operator'} ditugaskan` });
             setDriverId('');
             setImei('');
             onDone();
@@ -342,18 +342,18 @@ function AddForm({
                 value={driverId}
                 onChange={pickDriver}
                 options={driverOptions}
-                placeholder="Pilih driver…"
+                placeholder="Pilih operator…"
                 searchPlaceholder="Cari nama / no. karyawan…"
-                aria-label="Driver"
+                aria-label="Operator"
             />
             <Combobox
                 className="sm:flex-1"
                 value={imei}
                 onChange={setImei}
                 options={truckOptions}
-                placeholder="Pilih truk…"
+                placeholder="Pilih unit…"
                 searchPlaceholder="Cari plat / jenis…"
-                aria-label="Truk"
+                aria-label="Unit"
                 icon={<Truck className="size-4 text-muted-foreground" />}
             />
             <div className="flex gap-2">
@@ -375,7 +375,7 @@ function AddForm({
                 </Button>
             </div>
             {freeTrucks.length === 0 && (
-                <Empty className="text-xs sm:basis-full">Semua truk lagi dipakai.</Empty>
+                <Empty className="text-xs sm:basis-full">Semua unit lagi dipakai.</Empty>
             )}
         </form>
     );
@@ -445,10 +445,10 @@ function AssignmentItem({
         try {
             await update.mutateAsync({ driverId: a.driverId, imei, note: a.note });
             toast({
-                title: 'Truk diganti',
+                title: 'Unit diganti',
                 body:
                     status === 'active'
-                        ? 'Ritase sebelumnya tetap kecatat di truk lama.'
+                        ? 'Ritase sebelumnya tetap kecatat di unit lama.'
                         : undefined,
             });
             onChanged();
@@ -462,8 +462,8 @@ function AssignmentItem({
             toast({
                 title:
                     r.result === 'ended'
-                        ? `${driver?.name ?? 'Driver'} selesai tugas`
-                        : `${driver?.name ?? 'Driver'} dilepas dari shift`,
+                        ? `${driver?.name ?? 'Operator'} selesai tugas`
+                        : `${driver?.name ?? 'Operator'} dilepas dari shift`,
                 body:
                     r.result === 'ended' ? 'Ritase yang udah dijalanin tetap kecatat.' : undefined,
                 level: 'warn',
@@ -491,7 +491,7 @@ function AssignmentItem({
                         className={cn(ended && 'bg-muted text-muted-foreground')}
                     />
                     <span className="flex min-w-0 flex-1 flex-col">
-                        <b className="truncate text-sm">{driver?.name ?? 'Driver dihapus'}</b>
+                        <b className="truncate text-sm">{driver?.name ?? 'Operator dihapus'}</b>
                         <span className="truncate font-mono text-xs text-muted-foreground">
                             {truck ? truckLabel(truck) : a.imei}
                             {when && <span className="font-sans"> · {when}</span>}
@@ -530,17 +530,17 @@ function AssignmentItem({
                                 label: truckLabel(t),
                                 hint: t.vehicle ?? undefined,
                             }))}
-                            placeholder="Ganti truk…"
+                            placeholder="Ganti unit…"
                             searchPlaceholder="Cari plat…"
-                            empty="Nggak ada truk yang nganggur."
-                            aria-label="Ganti truk"
+                            empty="Nggak ada unit yang nganggur."
+                            aria-label="Ganti unit"
                         />
                         <Button
                             variant="ghost"
                             size="icon-sm"
                             className="text-muted-foreground hover:text-destructive"
                             onClick={() => setConfirm(true)}
-                            aria-label={`Lepas ${driver?.name ?? 'driver'} dari shift`}
+                            aria-label={`Lepas ${driver?.name ?? 'operator'} dari shift`}
                         >
                             <X />
                         </Button>
@@ -560,7 +560,7 @@ function AssignmentItem({
                             empty={
                                 status === 'planned'
                                     ? 'Shift belum mulai.'
-                                    : 'Belum ada ritase. Kehitung setelah truk keluar dari titik loading lalu sampai di unloading.'
+                                    : 'Belum ada ritase. Kehitung setelah unit keluar dari front loading lalu sampai di dumping.'
                             }
                         />
                     </div>
@@ -571,12 +571,12 @@ function AssignmentItem({
                 onOpenChange={setConfirm}
                 title={
                     ending
-                        ? `Selesaikan tugas ${driver?.name ?? 'driver'}?`
-                        : `Lepas ${driver?.name ?? 'driver'} dari shift?`
+                        ? `Selesaikan tugas ${driver?.name ?? 'operator'}?`
+                        : `Lepas ${driver?.name ?? 'operator'} dari shift?`
                 }
                 description={
                     ending
-                        ? 'Ritase yang udah dijalanin tetap kecatat. Driver & truknya bisa ditugaskan lagi.'
+                        ? 'Ritase yang udah dijalanin tetap kecatat. Operator & truknya bisa ditugaskan lagi.'
                         : 'Penugasan ini dihapus dari shift.'
                 }
                 confirmLabel={ending ? 'Selesai tugas' : 'Lepas'}

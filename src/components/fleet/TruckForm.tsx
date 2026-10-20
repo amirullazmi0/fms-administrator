@@ -58,7 +58,7 @@ export default function TruckForm({
         setSaving(true);
         try {
             await update.mutateAsync(form);
-            toast({ title: 'Info truk disimpan', body: form.plate || form.name || d.imei });
+            toast({ title: 'Info unit disimpan', body: form.plate || form.name || d.imei });
             onOpenChange(false);
         } catch (err) {
             toast({ title: 'Gagal nyimpen', body: errText(err), level: 'crit' });
@@ -71,7 +71,7 @@ export default function TruckForm({
         try {
             await del.mutateAsync();
             toast({
-                title: 'Truk dihapus',
+                title: 'Unit dihapus',
                 body: `${truckLabel(d)} dihapus dari daftar. Riwayat GPS-nya tetap disimpan buat laporan.`,
                 level: 'warn',
             });
@@ -87,7 +87,7 @@ export default function TruckForm({
                 <DialogContent>
                     <form className="flex flex-col gap-4" onSubmit={(e) => void save(e)}>
                         <DialogHeader>
-                            <DialogTitle>Info truk</DialogTitle>
+                            <DialogTitle>Info unit</DialogTitle>
                             <DialogDescription className="font-mono">
                                 IMEI {d.imei}
                             </DialogDescription>
@@ -101,15 +101,15 @@ export default function TruckForm({
                                 autoFocus
                             />
                         </Field>
-                        <Field label="Nama / kode truk">
+                        <Field label="Nama / kode unit">
                             <Input
                                 value={form.name}
                                 onChange={set('name')}
-                                placeholder="Truk 01"
+                                placeholder="Unit 01"
                                 autoComplete="off"
                             />
                         </Field>
-                        <Field label="Jenis kendaraan">
+                        <Field label="Jenis unit">
                             <Input
                                 value={form.vehicle}
                                 onChange={set('vehicle')}
@@ -125,7 +125,7 @@ export default function TruckForm({
                                     className="text-destructive hover:text-destructive"
                                     onClick={() => setConfirmDelete(true)}
                                 >
-                                    <Trash2 /> Hapus truk
+                                    <Trash2 /> Hapus unit
                                 </Button>
                             ) : (
                                 <span />
@@ -150,8 +150,8 @@ export default function TruckForm({
                 open={confirmDelete}
                 onOpenChange={setConfirmDelete}
                 title={`Hapus ${truckLabel(d)}?`}
-                description="Truk ini hilang dari daftar. Record GPS-nya tetap disimpan buat laporan lama; kalau alatnya konek lagi, truk muncul lagi."
-                confirmLabel="Ya, hapus truk"
+                description="Unit ini hilang dari daftar. Record GPS-nya tetap disimpan buat laporan lama; kalau alatnya konek lagi, unit muncul lagi."
+                confirmLabel="Ya, hapus unit"
                 destructive
                 onConfirm={() => void remove()}
             />

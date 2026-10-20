@@ -22,11 +22,11 @@ import type { Permission, Role } from '@/types/role';
 
 // Group labels for permission prefixes.
 const GROUPS: Record<string, string> = {
-    device: 'Truk & live',
+    device: 'Unit & live',
     log: 'Log alat',
     site: 'Titik',
     route: 'Rute',
-    driver: 'Driver',
+    driver: 'Operator',
     shift_template: 'Template shift',
     shift: 'Shift',
     assignment: 'Penugasan',

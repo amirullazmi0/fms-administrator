@@ -50,7 +50,7 @@ function truckPopup(d: Device, job: Duty | undefined): string {
     <div class="mp-title">${escHtml(truckLabel(d))}</div>
     <dl>
       <dt>Status</dt><dd>${STATUS_LABEL[st]}${d.last ? ` · ${d.last.speed} km/jam` : ''}</dd>
-      ${job ? `<dt>Supir</dt><dd>${escHtml(job.driverName)} (${escHtml(job.shiftName)})</dd><dt>Rute</dt><dd>${escHtml(job.routeName)}</dd>` : '<dt>Tugas</dt><dd>Nganggur</dd>'}
+      ${job ? `<dt>Operator</dt><dd>${escHtml(job.driverName)} (${escHtml(job.shiftName)})</dd><dt>Rute</dt><dd>${escHtml(job.routeName)}</dd>` : '<dt>Tugas</dt><dd>Nganggur</dd>'}
       <dt>Update</dt><dd>${ago(lastHeard(d))}</dd>
       <dt>Koordinat</dt><dd class="mono">${d.pos!.lat.toFixed(6)}, ${d.pos!.lng.toFixed(6)}</dd>
     </dl>

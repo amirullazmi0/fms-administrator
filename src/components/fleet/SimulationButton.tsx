@@ -47,14 +47,14 @@ export default function SimulationButton({
                 await stop.mutateAsync({});
                 toast({
                     title: 'Simulasi dihentikan',
-                    body: 'Truk simulasi putus dari server.',
+                    body: 'Unit simulasi putus dari server.',
                     level: 'warn',
                 });
             } else {
                 const r = await start.mutateAsync({});
                 toast({
                     title: 'Simulasi jalan',
-                    body: `${r.data?.devices ?? s.devices} truk palsu konek, data tiap ${r.data?.interval ?? s.interval} detik.`,
+                    body: `${r.data?.devices ?? s.devices} unit palsu konek, data tiap ${r.data?.interval ?? s.interval} detik.`,
                 });
             }
         } catch (err) {
@@ -68,7 +68,7 @@ export default function SimulationButton({
         }
     };
 
-    const label = s.running ? `Hentikan simulasi (${s.devices} truk)` : 'Jalankan simulasi';
+    const label = s.running ? `Hentikan simulasi (${s.devices} unit)` : 'Jalankan simulasi';
     const Icon = s.running ? Square : Play;
     const btn = (
         <button

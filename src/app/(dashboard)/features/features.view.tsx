@@ -193,7 +193,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
                 await start.mutateAsync({});
                 toast({
                     title: 'Simulasi jalan',
-                    body: `${form.devices} truk palsu konek ke server.`,
+                    body: `${form.devices} unit palsu konek ke server.`,
                 });
             }
         } catch (err) {
@@ -208,7 +208,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
             <FeatureHead feature={feature} onToggle={(v) => void toggle(v)} busy={busy} />
             <form className="flex flex-col gap-4 border-t pt-4" onSubmit={(e) => void save(e)}>
                 <div className="grid gap-3 sm:grid-cols-2">
-                    <Field label="Jumlah truk" hint="1–50">
+                    <Field label="Jumlah unit" hint="1–50">
                         <Input
                             type="number"
                             min={1}
@@ -231,9 +231,9 @@ function SimulationCard({ feature }: { feature: Feature }) {
                 </div>
                 <Label className="justify-between rounded-lg border p-3">
                     <span className="flex flex-col gap-1">
-                        <span>Truk tanpa tugas keliling Jakarta</span>
+                        <span>Unit tanpa tugas keliling Jakarta</span>
                         <span className="text-xs font-normal text-muted-foreground">
-                            Kalau mati, truk yang nggak ditugasin di shift aktif diam parkir.
+                            Kalau mati, unit yang nggak ditugasin di shift aktif diam parkir.
                         </span>
                     </span>
                     <Switch
@@ -243,7 +243,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
                     />
                 </Label>
                 <Note tone="info">
-                    Setelan baru kepakai waktu simulasi dijalankan lagi. Truk yang ditugasin di
+                    Setelan baru kepakai waktu simulasi dijalankan lagi. Unit yang ditugasin di
                     shift aktif jalan bolak-balik sesuai rutenya.
                 </Note>
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -254,7 +254,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
                                 [
                                     'Status',
                                     s.running ? (
-                                        <Badge variant="success">Jalan · {s.devices} truk</Badge>
+                                        <Badge variant="success">Jalan · {s.devices} unit</Badge>
                                     ) : (
                                         <Badge variant="muted">Berhenti</Badge>
                                     ),
