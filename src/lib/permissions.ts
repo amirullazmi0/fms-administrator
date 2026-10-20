@@ -44,6 +44,10 @@ export const P = {
     simulationRun: 'simulation.run',
     roadRead: 'road.read',
     roadDelete: 'road.delete',
+    targetManage: 'target.manage',
+    delayCodeManage: 'delay_code.manage',
+    mdtManage: 'mdt.manage',
+    unitStatusWrite: 'unit_status.write',
 } as const;
 
 export type Permission = (typeof P)[keyof typeof P];

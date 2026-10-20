@@ -4,13 +4,15 @@ import { devicesMutations, DevicesMutationKeys } from './devices';
 import { sitesMutations, SitesMutationKeys } from './sites';
 import { shiftsMutations, ShiftsMutationKeys } from './shifts';
 import { adminMutations, AdminMutationKeys } from './admin';
+import { productionMutations, ProductionMutationKeys } from './production';
 
 export type AllMutationKeys =
     | AuthMutationKeys
     | DevicesMutationKeys
     | SitesMutationKeys
     | ShiftsMutationKeys
-    | AdminMutationKeys;
+    | AdminMutationKeys
+    | ProductionMutationKeys;
 
 export const allMutations: MutationDataService<AllMutationKeys> = {
     ...authMutations,
@@ -18,4 +20,5 @@ export const allMutations: MutationDataService<AllMutationKeys> = {
     ...sitesMutations,
     ...shiftsMutations,
     ...adminMutations,
+    ...productionMutations,
 };
