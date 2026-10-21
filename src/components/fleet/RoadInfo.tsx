@@ -1,5 +1,5 @@
 'use client';
-// Jalur jalan front loading → dumping dan estimasi waktu tempuh unit.
+// Jalur jalan pit → stockpile / jetty dan estimasi waktu tempuh unit.
 // Bila server routing tidak terjangkau, tampilkan perkiraan kasar dari jarak lurus.
 import type { ReactNode } from 'react';
 import { fmtDuration, fmtNum } from '@/lib/format';
@@ -87,7 +87,7 @@ function HistoryInfo({ history: h }: { history: RouteHistory | null }) {
             <Box line="actual" title="Jalur asli unit">
                 <Empty>
                     Belum ada ritase selesai di rute ini dalam {h.days} hari terakhir. Garis jalan
-                    aktual muncul setelah unit pertama kali berjalan dari front loading ke dumping.
+                    aktual muncul setelah unit pertama kali berjalan dari pit ke stockpile / jetty.
                 </Empty>
             </Box>
         );

@@ -1,5 +1,5 @@
 'use client';
-// Peta halaman Front, dumping & rute: semua titik, posisi unit, titik yang sedang diedit, dan rute yang dipilih.
+// Peta halaman Pit, stockpile / jetty & rute: semua titik, posisi unit, titik yang sedang diedit, dan rute yang dipilih.
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { TRUCK_GLYPH } from '@/lib/markers';
@@ -28,7 +28,7 @@ interface Props {
     onSelect: (id: string) => void;
     onPick: (lat: number, lng: number) => void; // klik peta / geser penanda
     canEdit: boolean; // true = sedang memasang/memindahkan titik. false = klik peta hanya menampilkan info koordinat
-    routeLine: { from: Site; to: Site } | null; // rute yang sedang dipilih: garis front loading -> dumping
+    routeLine: { from: Site; to: Site } | null; // rute yang sedang dipilih: garis pit -> dumping
     roles?: Map<string, SiteType>; // peran titik di rute yang sedang dipilih (L/U di penanda)
     roadPaths: [number, number][][] | null; // jalur jalan (dari OSRM). null = garis lurus saja
     activePath: number;

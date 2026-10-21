@@ -441,7 +441,7 @@ export default function ReportsView() {
                             big
                         />
                         <Stat
-                            label="Hauling (front → dumping)"
+                            label="Hauling (pit → stockpile / jetty)"
                             value={t.done ? fmtDuration(t.avgDurationMs) : '—'}
                             sub={
                                 t.done
@@ -451,7 +451,7 @@ export default function ReportsView() {
                             big
                         />
                         <Stat
-                            label="Return (dumping → front)"
+                            label="Return (stockpile / jetty → pit)"
                             value={t.backDone ? fmtDuration(t.backAvgMs) : '—'}
                             sub={
                                 t.backDone
@@ -477,7 +477,7 @@ export default function ReportsView() {
                             sub={t.avgFuel != null ? `${fuel(t.avgFuel)} / ritase` : undefined}
                         />
                         <Stat
-                            label="BBM loading → dumping"
+                            label="BBM pit → stockpile / jetty"
                             value={
                                 t.avgFuelAtLoading != null
                                     ? `${fmtNum(t.avgFuelAtLoading, 1)} → ${fmtNum(t.avgFuelAtUnloading ?? 0, 1)}`
@@ -490,10 +490,10 @@ export default function ReportsView() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <ChartCard title="Waktu di front loading" hint="antri + muat">
+                <ChartCard title="Waktu di pit" hint="antri + muat">
                     <DwellBox s={visits?.loading} />
                 </ChartCard>
-                <ChartCard title="Waktu di titik dumping" hint="antri + bongkar">
+                <ChartCard title="Waktu di stockpile / jetty" hint="antri + bongkar">
                     <DwellBox s={visits?.unloading} />
                 </ChartCard>
                 <ChartCard
@@ -502,7 +502,7 @@ export default function ReportsView() {
                 >
                     {!visits?.current.length ? (
                         <p className="m-0 py-6 text-center text-sm text-muted-foreground">
-                            Tidak ada unit di front loading / dumping.
+                            Tidak ada unit di pit / stockpile / jetty.
                         </p>
                     ) : (
                         <ul className="m-0 flex max-h-56 list-none flex-col gap-2 overflow-y-auto p-0">
@@ -522,7 +522,7 @@ export default function ReportsView() {
                                                     c.role === 'loading' ? 'success' : 'warning'
                                                 }
                                             >
-                                                {c.role === 'loading' ? 'Loading' : 'Dumping'}
+                                                {c.role === 'loading' ? 'Pit' : 'Stockpile / jetty'}
                                             </Badge>
                                             <span className="truncate">{c.siteName}</span>
                                         </span>
@@ -543,7 +543,7 @@ export default function ReportsView() {
                         rows={(visits?.sites ?? []).map((x) => ({
                             key: x.siteId,
                             label: x.siteName,
-                            sub: `${x.role === 'loading' ? 'loading' : 'dumping'} · ${x.visits}× selesai${x.inside ? ` · ${x.inside} di dalam` : ''}`,
+                            sub: `${x.role === 'loading' ? 'pit' : 'stockpile / jetty'} · ${x.visits}× selesai${x.inside ? ` · ${x.inside} di dalam` : ''}`,
                             value: x.avgDwellMs / 60e3,
                         }))}
                         color={SERIES[4]}
@@ -662,7 +662,7 @@ export default function ReportsView() {
                 {!loading && rows.length === 0 ? (
                     <Empty className="px-4 pb-4">
                         Belum ada ritase di periode ini. Ritase tercatat dari penugasan shift: tiap
-                        kali unit keluar dari front loading lalu sampai di titik dumping rutenya.
+                        kali unit keluar dari pit lalu sampai di stockpile / jetty rutenya.
                     </Empty>
                 ) : (
                     <Table>
@@ -679,7 +679,9 @@ export default function ReportsView() {
                                 {th('stops', 'Berhenti')}
                                 {th('fuelUsed', 'BBM total')}
                                 {th('avgFuel', 'BBM / ritase')}
-                                <TableHead className="text-right">BBM loading → dumping</TableHead>
+                                <TableHead className="text-right">
+                                    BBM pit → stockpile / jetty
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

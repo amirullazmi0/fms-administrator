@@ -1,7 +1,7 @@
 'use client';
 // Peta monitoring manajemen: setiap unit diwarnai menurut status operasional (Working / Standby
 // terencana / Standby tidak terencana / Breakdown / Offline) dari MDT atau supervisor, dengan label
-// unit dan front loading / dumping. Klik unit = pilih (detail di panel samping).
+// unit dan pit / stockpile / jetty. Klik unit = pilih (detail di panel samping).
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';

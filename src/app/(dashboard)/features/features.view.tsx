@@ -247,8 +247,12 @@ function SimulationCard({ feature }: { feature: Feature }) {
                 <div className="grid gap-3 sm:grid-cols-3">
                     {(
                         [
-                            ['excavators', 'Excavator (EX)', 'Bekerja di front loading'],
-                            ['lightVehicles', 'Light vehicle (LV)', 'Keliling front ↔ dumping'],
+                            ['excavators', 'Excavator (EX)', 'Bekerja di pit'],
+                            [
+                                'lightVehicles',
+                                'Light vehicle (LV)',
+                                'Keliling pit ↔ stockpile / jetty',
+                            ],
                             [
                                 'supports',
                                 'Support (grader / water truck)',
@@ -297,8 +301,8 @@ function SimulationCard({ feature }: { feature: Feature }) {
                     Setelan baru berlaku saat simulasi dijalankan kembali. DT yang ditugaskan di
                     shift aktif melakukan hauling dan return sesuai rutenya; saat shift ditutup, DT
                     yang masih return atau loading menyelesaikan loading, hauling, dan dumping dulu
-                    baru parkir. EX bekerja di front loading fleet-nya (menu Fleet), atau di rute
-                    yang sedang dipakai.
+                    baru parkir. EX bekerja di pit fleet-nya (menu Fleet), atau di rute yang sedang
+                    dipakai.
                 </Note>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     {s && (
