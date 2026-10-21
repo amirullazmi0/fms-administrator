@@ -26,6 +26,7 @@ import {
     fmtNum,
     STATUS_LABEL,
     statusOf,
+    truckHint,
     truckLabel,
 } from '@/lib/format';
 import { BarChart, ChartCard, Donut, RankBars, SERIES } from '@/components/fleet/Charts';
@@ -399,7 +400,7 @@ export default function ReportsView() {
                             ...trucks.map((d) => ({
                                 value: d.imei,
                                 label: truckLabel(d),
-                                hint: d.vehicle ?? undefined,
+                                hint: truckHint(d),
                             })),
                         ]}
                         placeholder="Semua unit"
