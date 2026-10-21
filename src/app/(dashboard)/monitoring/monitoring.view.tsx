@@ -222,7 +222,11 @@ function HeatTab() {
     const rep = report.data?.data;
     const shownSites = useMemo(() => {
         const r = routes.find((x) => x.id === route);
-        return r ? sites.filter((s) => s.id === r.loadingId || s.id === r.unloadingId) : sites;
+        return r
+            ? sites.filter(
+                  (s) => s.id === r.loadingId || (r.unloadingIds ?? [r.unloadingId]).includes(s.id),
+              )
+            : sites;
     }, [routes, sites, route]);
 
     return (

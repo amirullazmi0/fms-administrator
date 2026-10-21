@@ -246,7 +246,8 @@ export interface Route {
     id: string;
     name: string;
     loadingId: string;
-    unloadingId: string;
+    unloadingId: string; // stockpile / jetty utama
+    unloadingIds?: string[]; // semua stockpile / jetty, utama dulu; ritase selesai di salah satunya
     note: string | null;
     onDuty: OnDuty[];
     recentDone?: OnDuty[]; // unit yang shift-nya sudah selesai di rute ini (12 jam terakhir)
@@ -342,6 +343,7 @@ export interface Assignment {
     driverId: string;
     imei: string;
     routeId: string;
+    unloadingId: string | null; // stockpile / jetty tujuan unit (null = jetty utama rute)
     note: string | null;
     startAt: number | null; // null = dari awal shift
     endAt: number | null; // null = masih berlaku sampai shift selesai
