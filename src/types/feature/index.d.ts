@@ -9,9 +9,13 @@ export interface Feature {
 }
 
 export interface SimulationConfig {
-    devices: number;
+    devices: number; // all units
     interval: number;
     loop: boolean;
+    // Of devices: EX, LV and SUPPORT; the rest are DT. Not set = default composition.
+    excavators: number;
+    lightVehicles: number;
+    supports: number;
 }
 
 export interface SimulationStatus {

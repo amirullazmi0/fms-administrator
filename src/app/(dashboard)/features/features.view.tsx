@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Field, Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/checkbox';
 import { Empty, KV, Note } from '@/components/ui/misc';
+import { cn } from '@/lib/utils';
 import type { GlobalApiResponse } from '@/types/api/responses';
 import type { Feature, SimulationConfig, SimulationStatus } from '@/types/feature';
 
@@ -140,11 +141,17 @@ function SimulationCard({ feature }: { feature: Feature }) {
     const toast = useToast();
     const update = useUpdateFeature();
     const cfg = feature.config as Partial<SimulationConfig>;
+    const devices = Number(cfg.devices ?? 2);
+    // Default composition (backend simulator.Mix): 1 EX per 5 units, 1 LV and 1 SUPPORT per 10.
     const [form, setForm] = useState<SimulationConfig>({
-        devices: Number(cfg.devices ?? 2),
+        devices,
         interval: Number(cfg.interval ?? 3),
         loop: Boolean(cfg.loop),
+        excavators: Number(cfg.excavators ?? Math.floor(devices / 5)),
+        lightVehicles: Number(cfg.lightVehicles ?? Math.floor(devices / 10)),
+        supports: Number(cfg.supports ?? Math.floor(devices / 10)),
     });
+    const dumpTrucks = form.devices - form.excavators - form.lightVehicles - form.supports;
     const [busy, setBusy] = useState(false);
     // The card remounts (key = updated_at) when the saved config changes, so the form re-reads it.
 
@@ -164,7 +171,14 @@ function SimulationCard({ feature }: { feature: Feature }) {
     const s = sim.data?.data;
     const editable = can(P.featureUpdate);
     const invalid =
-        form.devices < 1 || form.devices > 50 || form.interval < 1 || form.interval > 60;
+        form.devices < 1 ||
+        form.devices > 50 ||
+        form.interval < 1 ||
+        form.interval > 60 ||
+        form.excavators < 0 ||
+        form.lightVehicles < 0 ||
+        form.supports < 0 ||
+        dumpTrucks < 0;
 
     const toggle = async (v: boolean) => {
         setBusy(true);
@@ -209,7 +223,7 @@ function SimulationCard({ feature }: { feature: Feature }) {
             <FeatureHead feature={feature} onToggle={(v) => void toggle(v)} busy={busy} />
             <form className="flex flex-col gap-4 border-t pt-4" onSubmit={(e) => void save(e)}>
                 <div className="grid gap-3 sm:grid-cols-2">
-                    <Field label="Jumlah unit" hint="1–50">
+                    <Field label="Jumlah unit (semua jenis)" hint="1–50">
                         <Input
                             type="number"
                             min={1}
@@ -230,6 +244,42 @@ function SimulationCard({ feature }: { feature: Feature }) {
                         />
                     </Field>
                 </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                    {(
+                        [
+                            ['excavators', 'Excavator (EX)', 'Bekerja di front loading'],
+                            ['lightVehicles', 'Light vehicle (LV)', 'Keliling front ↔ dumping'],
+                            [
+                                'supports',
+                                'Support (grader / water truck)',
+                                'Jalan pelan di jalan hauling',
+                            ],
+                        ] as const
+                    ).map(([key, label, hint]) => (
+                        <Field key={key} label={label} hint={hint}>
+                            <Input
+                                type="number"
+                                min={0}
+                                max={form.devices}
+                                value={form[key]}
+                                disabled={!editable}
+                                onChange={(e) =>
+                                    setForm({ ...form, [key]: Number(e.target.value) })
+                                }
+                            />
+                        </Field>
+                    ))}
+                </div>
+                <p
+                    className={cn(
+                        'text-xs',
+                        dumpTrucks < 0 ? 'text-destructive' : 'text-muted-foreground',
+                    )}
+                >
+                    {dumpTrucks < 0
+                        ? 'Jumlah EX + LV + SUPPORT melebihi jumlah unit.'
+                        : `Sisanya dump truck: ${dumpTrucks} DT, mengikuti rute di shift aktif.`}
+                </p>
                 <Label className="justify-between rounded-lg border p-3">
                     <span className="flex flex-col gap-1">
                         <span>Unit tanpa tugas keliling Jakarta</span>
@@ -244,8 +294,11 @@ function SimulationCard({ feature }: { feature: Feature }) {
                     />
                 </Label>
                 <Note tone="info">
-                    Setelan baru berlaku saat simulasi dijalankan kembali. Unit yang ditugaskan di
-                    shift aktif melakukan hauling dan return sesuai rutenya.
+                    Setelan baru berlaku saat simulasi dijalankan kembali. DT yang ditugaskan di
+                    shift aktif melakukan hauling dan return sesuai rutenya; saat shift ditutup, DT
+                    yang masih return atau loading menyelesaikan loading, hauling, dan dumping dulu
+                    baru parkir. EX bekerja di front loading fleet-nya (menu Fleet), atau di rute
+                    yang sedang dipakai.
                 </Note>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     {s && (
