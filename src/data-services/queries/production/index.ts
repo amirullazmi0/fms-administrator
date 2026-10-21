@@ -7,7 +7,8 @@ export type ProductionQueryKeys =
     | 'reports-stages'
     | 'production-targets'
     | 'delay-codes'
-    | 'unit-status-current';
+    | 'unit-status-current'
+    | 'reports-heatmap';
 
 export const productionQueries: QueriesDataService<ProductionQueryKeys> = {
     'reports-hourly': '/reports/hourly',
@@ -16,4 +17,5 @@ export const productionQueries: QueriesDataService<ProductionQueryKeys> = {
     'production-targets': '/production-targets',
     'delay-codes': '/delay-codes',
     'unit-status-current': '/unit-status/current',
+    'reports-heatmap': '/reports/heatmap',
 };

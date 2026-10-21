@@ -19,6 +19,7 @@ import {
     Gauge,
     ListChecks,
     LogOut,
+    Map as MapIcon,
     Menu,
     Monitor,
     Moon,
@@ -76,6 +77,7 @@ export const useLayout = () => useContext(LayoutCtx);
 
 // Menu hanya menampilkan halaman yang boleh dibuka role user (permission).
 const NAV: { to: string; label: string; icon: LucideIcon; end?: boolean; need: Permission[] }[] = [
+    { to: '/monitoring', label: 'Peta monitoring', icon: MapIcon, need: [P.deviceRead] },
     { to: '/reports', label: 'Laporan ritase', icon: ChartColumn, need: [P.reportRead] },
     { to: '/production', label: 'Produksi per jam', icon: Gauge, need: [P.reportRead] },
     {
