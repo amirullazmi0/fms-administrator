@@ -83,7 +83,8 @@ function LiveTab() {
     const driverOf = useMemo(() => {
         const m = new Map<string, string>();
         for (const r of routes)
-            for (const d of r.onDuty ?? []) if (d.phase !== 'done') m.set(d.imei, d.driverName);
+            for (const d of [...(r.onDuty ?? []), ...(r.excavators ?? [])])
+                if (d.phase !== 'done') m.set(d.imei, d.driverName);
         return m;
     }, [routes]);
 
