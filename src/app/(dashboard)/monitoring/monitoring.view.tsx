@@ -10,7 +10,7 @@ import type { HeatMode } from '@/components/fleet/HeatMap';
 import { MONITOR_TONE } from '@/components/fleet/MonitorMap';
 import type { MonitorTone, MonitorUnit } from '@/components/fleet/MonitorMap';
 import { useData } from '@/provider/StreamProvider';
-import { Empty } from '@/components/ui/misc';
+import { Empty, SiteDot } from '@/components/ui/misc';
 import { SimpleSelect } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { addDays, dateKey, displayName, fmtDuration, lastHeard, STALE_MS } from '@/lib/format';
@@ -87,6 +87,32 @@ function LiveTab() {
         return m;
     }, [routes]);
 
+    // Stockpile / jetty tujuan tiap unit yang bertugas (jetty unit, atau jetty utama rutenya).
+    const jettyOf = useMemo(() => {
+        const name = (id: string) => sites.find((s) => s.id === id)?.name ?? '?';
+        const m = new Map<string, { id: string; name: string; route: string }>();
+        for (const r of routes)
+            for (const d of r.onDuty ?? []) {
+                if (d.phase === 'done') continue;
+                const id = d.unloadingId ?? r.unloadingId;
+                m.set(d.imei, { id, name: name(id), route: r.name });
+            }
+        return m;
+    }, [routes, sites]);
+    // Ringkasan per jetty: unit yang sedang dituju ke sana.
+    const jetties = useMemo(() => {
+        const by = new Map<string, { name: string; routes: Set<string>; imeis: string[] }>();
+        for (const [imei, j] of jettyOf) {
+            const x = by.get(j.id) ?? { name: j.name, routes: new Set<string>(), imeis: [] };
+            x.routes.add(j.route);
+            x.imeis.push(imei);
+            by.set(j.id, x);
+        }
+        return [...by.entries()]
+            .map(([id, x]) => ({ id, ...x }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }, [jettyOf]);
+
     const units = useMemo<MonitorUnit[]>(() => {
         const st = new Map((current.data?.data ?? []).map((l) => [l.imei, l]));
         return Object.values(devices)
@@ -157,48 +183,90 @@ function LiveTab() {
                     selected={selected}
                     onSelect={setSelected}
                 />
-                <section className="flex max-h-[70vh] min-h-0 flex-col rounded-xl border bg-card">
-                    <h2 className="m-0 border-b px-4 py-3 text-sm font-semibold">
-                        Unit {filter ? `· ${MONITOR_TONE[filter].label}` : ''} ({shown.length})
-                    </h2>
-                    {shown.length === 0 ? (
-                        <Empty className="p-4">Tidak ada unit.</Empty>
-                    ) : (
-                        <ul className="m-0 flex min-h-0 list-none flex-col overflow-y-auto p-2">
-                            {shown
-                                .slice()
-                                .sort(
-                                    (a, b) =>
-                                        PRIORITY.indexOf(a.tone) - PRIORITY.indexOf(b.tone) ||
-                                        a.label.localeCompare(b.label),
-                                )
-                                .map((u) => (
-                                    <li key={u.imei}>
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelected(u.imei)}
-                                            className={cn(
-                                                'flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-[13px] hover:bg-muted',
-                                                selected === u.imei && 'bg-muted',
-                                            )}
-                                        >
-                                            <i
-                                                className="size-3 shrink-0 rounded-full"
-                                                style={{ background: MONITOR_TONE[u.tone].color }}
-                                            />
-                                            <span className="min-w-0 flex-1">
-                                                <b className="block truncate">{u.label}</b>
-                                                <span className="block truncate text-xs text-muted-foreground">
-                                                    {u.status}
-                                                    {u.driver ? ` · ${u.driver}` : ''}
+                <div className="flex min-h-0 flex-col gap-3">
+                    <section className="flex max-h-[70vh] min-h-0 flex-col rounded-xl border bg-card">
+                        <h2 className="m-0 border-b px-4 py-3 text-sm font-semibold">
+                            Unit {filter ? `· ${MONITOR_TONE[filter].label}` : ''} ({shown.length})
+                        </h2>
+                        {shown.length === 0 ? (
+                            <Empty className="p-4">Tidak ada unit.</Empty>
+                        ) : (
+                            <ul className="m-0 flex min-h-0 list-none flex-col overflow-y-auto p-2">
+                                {shown
+                                    .slice()
+                                    .sort(
+                                        (a, b) =>
+                                            PRIORITY.indexOf(a.tone) - PRIORITY.indexOf(b.tone) ||
+                                            a.label.localeCompare(b.label),
+                                    )
+                                    .map((u) => (
+                                        <li key={u.imei}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelected(u.imei)}
+                                                className={cn(
+                                                    'flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-[13px] hover:bg-muted',
+                                                    selected === u.imei && 'bg-muted',
+                                                )}
+                                            >
+                                                <i
+                                                    className="size-3 shrink-0 rounded-full"
+                                                    style={{
+                                                        background: MONITOR_TONE[u.tone].color,
+                                                    }}
+                                                />
+                                                <span className="min-w-0 flex-1">
+                                                    <b className="block truncate">{u.label}</b>
+                                                    <span className="block truncate text-xs text-muted-foreground">
+                                                        {u.status}
+                                                        {u.driver ? ` · ${u.driver}` : ''}
+                                                        {jettyOf.has(u.imei)
+                                                            ? ` · ke ${jettyOf.get(u.imei)!.name}`
+                                                            : ''}
+                                                    </span>
                                                 </span>
+                                            </button>
+                                        </li>
+                                    ))}
+                            </ul>
+                        )}
+                    </section>
+                    {jetties.length > 0 && (
+                        <section
+                            className="rounded-xl border bg-card"
+                            aria-label="Stockpile / jetty"
+                        >
+                            <h2 className="m-0 border-b px-4 py-3 text-sm font-semibold">
+                                Stockpile / jetty ({jetties.length})
+                            </h2>
+                            <ul className="m-0 flex list-none flex-col gap-1 p-2">
+                                {jetties.map((j) => (
+                                    <li key={j.id} className="rounded-lg px-2 py-2 text-[13px]">
+                                        <div className="flex items-center gap-2">
+                                            <SiteDot
+                                                type="unloading"
+                                                className="size-4 text-[9px]"
+                                            />
+                                            <b className="min-w-0 flex-1 truncate">{j.name}</b>
+                                            <span className="tabular-nums text-muted-foreground">
+                                                {j.imeis.length} unit
                                             </span>
-                                        </button>
+                                        </div>
+                                        <span className="block truncate text-xs text-muted-foreground">
+                                            {[...j.routes].join(', ')} ·{' '}
+                                            {j.imeis
+                                                .map((i) => {
+                                                    const d = devices[i];
+                                                    return d ? d.plate || displayName(d) : i;
+                                                })
+                                                .join(', ')}
+                                        </span>
                                     </li>
                                 ))}
-                        </ul>
+                            </ul>
+                        </section>
                     )}
-                </section>
+                </div>
             </div>
         </>
     );

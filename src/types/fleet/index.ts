@@ -239,6 +239,7 @@ export interface OnDuty {
     // done = shift sudah selesai (di recentDone, 12 jam terakhir).
     phase?: 'active' | 'finishing' | 'done';
     closedAt?: number | null;
+    unloadingId?: string | null; // stockpile / jetty tujuan unit (null = jetty utama rute)
 }
 
 // Rute = 1 titik pit + 1 stockpile / jetty. Operator & unit masuk ke rute lewat penugasan shift.
@@ -403,7 +404,7 @@ export interface TripRecord {
     status: 'done' | 'unfinished';
 }
 
-export type ReportGroup = 'route' | 'driver' | 'truck' | 'shift' | 'day' | 'hour';
+export type ReportGroup = 'route' | 'jetty' | 'driver' | 'truck' | 'shift' | 'day' | 'hour';
 
 // trips/done/avg/min/max = hauling (pit → stockpile / jetty). Jarak, berhenti, BBM total = dua arah.
 export interface ReportRow {

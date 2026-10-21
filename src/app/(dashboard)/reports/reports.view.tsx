@@ -58,7 +58,7 @@ import type { Status } from '@/lib/format';
 import type { DwellStats, VisitReport } from '@/types/fleet/visits';
 import { Badge } from '@/components/ui/badge';
 
-const ALL_GROUPS: ReportGroup[] = ['route', 'driver', 'truck', 'shift', 'day'];
+const ALL_GROUPS: ReportGroup[] = ['route', 'jetty', 'driver', 'truck', 'shift', 'day'];
 const STATUSES: Status[] = ['moving', 'idle', 'parked', 'offline'];
 
 type Preset = 'today' | 'yesterday' | '7d' | 'month' | 'custom';
@@ -73,6 +73,7 @@ const PRESETS: { id: Preset; label: string }[] = [
 
 const GROUPS: { id: ReportGroup; label: string; col: string }[] = [
     { id: 'route', label: 'Rute', col: 'Rute / fleet' },
+    { id: 'jetty', label: 'Stockpile / jetty', col: 'Stockpile / jetty' },
     { id: 'driver', label: 'Operator', col: 'Operator' },
     { id: 'truck', label: 'Unit', col: 'Unit' },
     { id: 'shift', label: 'Shift', col: 'Shift' },
@@ -599,6 +600,9 @@ export default function ReportsView() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <ChartCard title="Rute teramai" hint="ritase">
                     <RankBars rows={rank('route', (r) => r.done)} />
+                </ChartCard>
+                <ChartCard title="Ritase per stockpile / jetty" hint="ritase">
+                    <RankBars rows={rank('jetty', (r) => r.done)} color={SERIES[3]} />
                 </ChartCard>
                 <ChartCard title="Operator teratas" hint="ritase">
                     <RankBars rows={rank('driver', (r) => r.done)} color={SERIES[1]} />
